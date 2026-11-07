@@ -3,199 +3,374 @@
 <style>
 @page{size:A4;margin:0}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Yu Gothic","Meiryo",sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;color:#1a1a1a;background:#e9edf1}
-.panel{max-width:760px;margin:0 auto;padding:14px max(16px,env(safe-area-inset-left,0px))}
-h1{font-size:18px;margin-bottom:4px}
-h2{font-size:14px;margin:14px 0 6px}
-.note{font-size:13px;color:#52606d;margin-bottom:8px;line-height:1.5}
-.pv{display:flex;justify-content:center;margin:8px 0 10px}
-#pv{box-shadow:0 0 3mm rgba(0,0,0,.28)}
-.row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
-.row button,.row label.btn{font-size:14px;padding:9px 12px;border:1px solid #0a3d62;border-radius:6px;background:#fff;color:#0a3d62;cursor:pointer}
-.row button.p{background:#0a3d62;color:#fff}
-.row button.d{border-color:#b42318;color:#b42318}
-.layers button{font-size:13px;padding:6px 10px;border:1px solid #9aa5b1;border-radius:16px;background:#fff;color:#1a1a1a;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body{font-family:"Yu Gothic","Meiryo",sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;color:#1a1a1a;background:#e9edf1;-webkit-text-size-adjust:100%}
+.wrap{max-width:760px;margin:0 auto}
+.pvwrap{position:sticky;top:0;z-index:20;background:#e9edf1;padding:8px max(16px,env(safe-area-inset-left,0px)) 6px;border-bottom:1px solid #cfd6dd}
+.pvbar{display:flex;gap:6px;justify-content:space-between;align-items:center;margin-bottom:6px}
+.pvbar button{font-size:14px;min-height:40px;padding:0 12px;border:1px solid #0a3d62;border-radius:6px;background:#fff;color:#0a3d62}
+.pvbar button:disabled{opacity:.35}
+.pvbar .t{font-size:13px;font-weight:700;color:#3e4c59}
+.pv{display:flex;justify-content:center}
+#pv{box-shadow:0 0 3mm rgba(0,0,0,.28);position:relative}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px max(16px,env(safe-area-inset-left,0px)) 0}
+.tabs button{font-size:13px;min-height:48px;border:0;border-radius:8px 8px 0 0;background:#cfd6dd;color:#3e4c59;font-weight:700;line-height:1.25}
+.tabs button.on{background:#fff;color:#0a3d62}
+.page{background:#fff;padding:14px max(16px,env(safe-area-inset-left,0px)) 30px;min-height:50vh}
+.page[hidden]{display:none}
+h2{font-size:15px;margin:16px 0 6px;color:#0a3d62}
+h2:first-child{margin-top:0}
+.note{font-size:13px;color:#52606d;margin-bottom:8px;line-height:1.55}
+.warn{background:#fff4e5;border:1px solid #f0b36a;border-radius:6px;padding:10px;font-size:13px;line-height:1.5;margin-bottom:10px}
+.ok{background:#e8f6ee;border:1px solid #7cc8a0;border-radius:6px;padding:10px;font-size:13px;margin-bottom:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.btn{font-size:15px;min-height:46px;padding:0 14px;border:1px solid #0a3d62;border-radius:8px;background:#fff;color:#0a3d62;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.btn.p{background:#0a3d62;color:#fff}
+.btn.d{border-color:#b42318;color:#b42318}
+.btn.big{width:100%;font-size:17px;min-height:54px}
+.fld{margin-bottom:12px}
+.fld label,.g label{font-size:13px;font-weight:700;display:block;margin-bottom:4px;color:#3e4c59}
+input[type=text],input[type=number],textarea,select{font-size:16px;padding:10px;border:1px solid #9aa5b1;border-radius:6px;width:100%;font-family:inherit;min-height:46px;background:#fff;color:#1a1a1a}
+textarea{min-height:76px;resize:vertical}
+input[type=color]{width:100%;height:46px;border:1px solid #9aa5b1;border-radius:6px;padding:3px;background:#fff}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.g>div{min-width:0}.g .full{grid-column:1/-1}
+.chk{display:flex;align-items:center;gap:10px;font-size:15px;min-height:44px}
+.chk input{width:22px;height:22px}
+.tpls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tpl{border:2px solid #cfd6dd;border-radius:8px;padding:6px;background:#f6f8fa;text-align:center;font-size:13px;font-weight:700;color:#3e4c59}
+.tpl.on{border-color:#0a3d62;background:#eaf1f7}
+.mini{width:calc(91mm*.42);height:calc(55mm*.42);margin:0 auto 6px;overflow:hidden;position:relative;box-shadow:0 0 1mm rgba(0,0,0,.3)}
+.mini .card{zoom:.42;pointer-events:none}
+.layers{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.layers button{font-size:14px;min-height:40px;padding:0 12px;border:1px solid #9aa5b1;border-radius:20px;background:#fff;color:#1a1a1a;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .layers button.on{background:#0a3d62;color:#fff;border-color:#0a3d62}
-.ed{background:#fff;border-radius:6px;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.ed>div{min-width:0}
-.ed .full{grid-column:1/-1}
-.ed label{font-size:12px;font-weight:700;display:block;margin-bottom:3px;color:#3e4c59}
-.ed input[type=text],.ed input[type=number],.ed textarea,.ed select{font-size:16px;padding:8px;border:1px solid #9aa5b1;border-radius:4px;width:100%;font-family:inherit}
-.ed textarea{min-height:64px;resize:vertical}
-.ed input[type=color]{width:100%;height:38px;border:1px solid #9aa5b1;border-radius:4px;padding:2px}
-.nudge{display:flex;gap:6px}
-.nudge button{flex:1;font-size:16px;padding:10px 0;border:0;border-radius:4px;background:#0a3d62;color:#fff}
+.nudge{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.nudge button{font-size:20px;min-height:50px;border:0;border-radius:8px;background:#0a3d62;color:#fff}
+.lab{font-size:13px;font-weight:700;color:#3e4c59;margin:8px 0 4px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+details{margin:10px 0;border:1px solid #cfd6dd;border-radius:8px;padding:8px 10px}
+summary{font-size:14px;min-height:40px;display:flex;align-items:center;color:#3e4c59}
+.empty{position:absolute;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:7pt;color:#9aa5b1;text-align:center;line-height:1.6;pointer-events:none}
+.steps{font-size:14px;line-height:1.7;padding-left:1.3em;margin-bottom:10px}
+.steps li{margin-bottom:6px}
 .sheetwrap{display:none}
-.sheet{width:210mm;height:297mm;padding:11mm 14mm;display:grid;grid-template-columns:repeat(2,91mm);grid-template-rows:repeat(5,55mm)}
+.sheet{width:210mm;height:297mm;padding:11mm 14mm;display:grid;grid-template-columns:repeat(2,91mm);grid-template-rows:repeat(5,55mm);position:relative;background:#fff}
 .card{width:91mm;height:55mm;position:relative;overflow:hidden}
 .o{position:absolute}
 .o.t{white-space:pre}
-.o img{display:block;width:100%;height:100%;object-fit:fill}
+.o img{display:block;width:100%;height:100%;object-fit:cover}
 #pv .o{cursor:grab;touch-action:none}
 #pv .sel{outline:.25mm dashed #0d9488;outline-offset:.3mm}
-.hd{position:absolute;width:3.2mm;height:3.2mm;background:#0d9488;border-radius:50%;touch-action:none;cursor:nwse-resize;z-index:50}
-@media (max-width:480px){.ed{grid-template-columns:1fr 1fr}}
+#pv .ph{opacity:.45}
+.hd{position:absolute;width:5mm;height:5mm;background:#0d9488;border:.4mm solid #fff;border-radius:50%;touch-action:none;z-index:50}
+.safe{position:absolute;left:4mm;top:4mm;width:83mm;height:47mm;border:.2mm dashed #d9534f;pointer-events:none;z-index:40}
+.test .card::after{content:"";position:absolute;left:0;top:0;right:0;bottom:0;border:.2mm dashed #888}
+.ruler{position:absolute;left:14mm;bottom:3mm;width:100mm;height:1.2mm;background:#000}
+.rl{position:absolute;left:116mm;bottom:2.3mm;font-size:7pt;color:#000;white-space:nowrap}
 @media print{
  body{background:#fff}
- .panel,.pv{display:none}
- .sheetwrap{display:block;padding:0}
+ .wrap{display:none}
+ .sheetwrap{display:block}
 }
 </style></head><body>
-<div class="panel">
-<h1>名刺エディタ（10面・エーワン51604用）</h1>
-<p class="note">名刺の上のものは、指でなぞって動かせます。選んだものの右下の丸をなぞると、大きさが変わります（四角・線・画像）。</p>
-<div class="pv"><div class="card" id="pv"></div></div>
-
-<h2>足す</h2>
-<div class="row">
- <button class="p" id="addT">文字</button>
- <button class="p" id="addR">四角</button>
- <button class="p" id="addL">線</button>
- <label class="btn" for="addI">画像（ロゴなど）</label><input type="file" id="addI" accept="image/*" hidden>
+<div class="wrap">
+<div class="pvwrap">
+ <div class="pvbar"><button id="undo" aria-label="ひとつ戻す">↶ 戻す</button><span class="t">名刺（見本）</span><button id="redo" aria-label="やり直す">やり直す ↷</button></div>
+ <div class="pv"><div class="card" id="pv"></div></div>
+</div>
+<div class="tabs" id="tabs">
+ <button data-p="1">① 見本を<br>選ぶ</button><button data-p="2">② 文字を<br>入れる</button><button data-p="3">③ 動かす<br>飾る</button><button data-p="4">④ 印刷<br>する</button>
 </div>
 
-<h2>いま選んでいるもの</h2>
-<div class="row layers" id="layers"></div>
-<div class="ed" id="ed"></div>
-<div class="row" style="margin-top:8px">
- <button id="dup">複製</button><button id="front">前へ</button><button id="back">後ろへ</button><button class="d" id="del">削除</button>
+<div class="page" data-p="1">
+ <h2>好きな見本を選んでください</h2>
+ <p class="note">選ぶと、名刺に文字の見本が入ります。あとで文字や位置は自由に変えられます。入れた文字は、見本を変えても残ります。</p>
+ <div class="tpls" id="tpls"></div>
+ <p class="note" style="margin-top:10px">いまの配置は置き換わります。間違えたら、上の「戻す」で元に戻せます。</p>
 </div>
 
-<h2>名刺の地の色</h2>
-<div class="ed"><div><label for="bg">色</label><input type="color" id="bg" value="#ffffff"></div></div>
-
-<h2>印刷のずれ直し</h2>
-<p class="note">プリンターで紙の位置が少しずれるときに使います。</p>
-<div class="ed"><div><label for="oX">右へ(mm)</label><input type="number" id="oX" step="0.1" value="0"></div><div><label for="oY">下へ(mm)</label><input type="number" id="oY" step="0.1" value="0"></div></div>
-
-<div class="row" style="margin-top:14px">
- <button class="p" onclick="window.print()">印刷／PDFにする</button>
- <button id="demo">見本を入れる</button>
- <button class="d" id="clear">全部消す</button>
+<div class="page" data-p="2" hidden>
+ <h2>名刺に載せる文字を入れてください</h2>
+ <p class="note">空欄のところは印刷されません。見本の文字（うすい文字）は、入れると本物に変わります。</p>
+ <div id="roles"></div>
+ <div class="row"><button class="btn p big" data-go="3">次へ：動かす・飾る</button></div>
 </div>
-<p class="note">印刷の設定は「倍率100%（拡大縮小なし）」「余白なし」にします。まず普通紙で試し刷りしてください。内容は、この携帯の中だけに残ります。</p>
+
+<div class="page" data-p="3" hidden>
+ <h2>足す</h2>
+ <div class="row">
+  <button class="btn p" id="addT">＋ 文字</button>
+  <button class="btn p" id="addR">＋ 四角</button>
+  <button class="btn p" id="addL">＋ 線</button>
+  <label class="btn" for="addI">＋ 写真・ロゴ</label><input type="file" id="addI" accept="image/*" hidden>
+ </div>
+ <h2>動かしたいものを選ぶ</h2>
+ <p class="note">名刺の上のものを指でなぞると動かせます。四角・線・写真は、選ぶと右下に丸が出ます。その丸をなぞると大きさが変わります。</p>
+ <div class="layers" id="layers"></div>
+ <div id="ed"></div>
+ <div class="row" id="ops">
+  <button class="btn" id="dup">もう一つ増やす</button><button class="btn" id="front">手前へ</button><button class="btn" id="back">奥へ</button><button class="btn d" id="del">消す</button>
+ </div>
+ <h2>そろえる・目安</h2>
+ <div class="row">
+  <button class="btn" data-al="l">左に寄せる</button><button class="btn" data-al="c">左右の真ん中</button><button class="btn" data-al="r">右に寄せる</button><button class="btn" data-al="m">上下の真ん中</button>
+ </div>
+ <label class="chk"><input type="checkbox" id="snap"> 動かすとき、きりのいい位置に吸いつける</label>
+ <label class="chk"><input type="checkbox" id="safe"> 印刷で切れやすい端を赤い点線で見せる</label>
+ <h2>名刺の地の色</h2>
+ <div class="g"><div><label for="bg">色</label><input type="color" id="bg" value="#ffffff"></div></div>
+</div>
+
+<div class="page" data-p="4" hidden>
+ <h2>印刷の前の確認</h2>
+ <div id="checks"></div>
+ <h2>試し刷りをする（おすすめ）</h2>
+ <p class="note">最初は、名刺用紙ではなく普通のコピー用紙で試してください。次の「試し刷り用」を入れると、名刺の枠線と、10cmの定規の線が一緒に印刷されます。</p>
+ <label class="chk"><input type="checkbox" id="test"> 試し刷り用（枠線と定規を入れる）</label>
+ <h2>印刷するには</h2>
+ <ol class="steps">
+  <li>下の「印刷／PDFにする」を押します。</li>
+  <li>出てきた画面で、<b>用紙はA4、倍率は「100%」または「実際のサイズ」</b>にします。「用紙に合わせる」は選ばないでください。名刺の大きさが変わってしまいます。</li>
+  <li>プリンターを選んで印刷します。または、送り先を「PDFに保存」にします。</li>
+  <li>試し刷りの定規が<b>ちょうど10cm</b>になっているか、定規で測ります。</li>
+  <li>コンビニで印刷するときは、PDFに保存してから、お店の印刷サービスにそのPDFを送ります。このとき、お店の画面でも<b>「拡大縮小しない」</b>を選んでください。</li>
+ </ol>
+ <div class="row"><button class="btn p big" id="print">印刷／PDFにする</button></div>
+ <h2>印刷が少しずれるとき</h2>
+ <p class="note">試し刷りをした紙を、名刺用紙に重ねて光に透かしてください。印刷が用紙の枠より<b>右</b>にずれていたら「← 左へ」、<b>下</b>にずれていたら「↑ 上へ」を押します。1回で0.5mm（髪の毛5本ぶんくらい）動きます。</p>
+ <div class="nudge"><button id="sL">← 左へ</button><button id="sU">↑ 上へ</button><button id="sD">↓ 下へ</button><button id="sR">→ 右へ</button></div>
+ <p class="note" id="sNow"></p>
+ <div class="row"><button class="btn" id="sZero">調整をゼロに戻す</button></div>
+ <h2>最初からやり直す</h2>
+ <div class="row"><button class="btn d" id="clear">全部消す</button></div>
+</div>
 </div>
 <div class="sheetwrap"><div class="sheet" id="sheet"></div></div>
+
 <script>
-var KEY="meishi_editor3";
-var S={items:[],bg:"#ffffff",ox:0,oy:0,next:1,sel:0};
-try{var sv=JSON.parse(localStorage.getItem(KEY)||"null");if(sv&&sv.items)S=sv;}catch(e){}
+var KEY="meishi_editor4";
+var ROLES=[["en","英字の社名","MIRUSHURIRU など"],["co","会社名・お店の名前","株式会社○○"],["tt","肩書き","開発責任者 など"],["nm","お名前","山田 太郎"],["ad","住所","福岡市○○区○○1-2-3"],["tel","電話番号","092-000-0000"],["mail","メール","info@example.co.jp"],["web","ホームページ","example.co.jp"]];
+var SAMPLE={en:"SAMPLE",co:"株式会社サンプル",tt:"肩書き",nm:"山田 太郎",ad:"福岡市○○区○○1-2-3",tel:"092-000-0000",mail:"info@example.co.jp",web:"example.co.jp"};
+var FONTS={g:'"Yu Gothic","Meiryo",sans-serif',m:'"Yu Mincho","MS Mincho",serif'};
+var S={items:[],bg:"#ffffff",ox:0,oy:0,next:1,sel:0,vals:{},tpl:"",snap:true,safe:false,test:false,page:1};
+var loaded=false;
+try{var sv=JSON.parse(localStorage.getItem(KEY)||"null");if(sv&&sv.items){S=sv;if(!S.vals)S.vals={};loaded=S.items.length>0;}}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 function get(id){for(var i=0;i<S.items.length;i++)if(S.items[i].id===id)return S.items[i];return null;}
-function nid(){return S.next++;}
 function r1(n){return Math.round(n*10)/10;}
-function addItem(o){o.id=nid();S.items.push(o);S.sel=o.id;full();}
-var FONTS={g:'"Yu Gothic","Meiryo",sans-serif',m:'"Yu Mincho","MS Mincho",serif'};
-function itemHtml(it,sel){
- var cls="o "+it.k+((sel&&it.id===S.sel)?" sel":"");
- var st="left:"+it.x+"mm;top:"+it.y+"mm;";
- var inner="";
- if(it.k==="t"){st+="font-size:"+it.s+"pt;letter-spacing:"+it.l+"em;color:"+it.c+";font-weight:"+it.w+";line-height:"+it.lh+";font-family:"+FONTS[it.f||"g"]+";";inner=esc(it.t||"");if(!it.t&&sel)inner='<span style="opacity:.4">文字</span>';}
+function num(v,d){var x=parseFloat(v);return isNaN(x)?d:x;}
+
+/* ---- templates ---- */
+function T(role,x,y,s,l,w,c,f,o){var a={k:"t",role:role,x:x,y:y,s:s,l:l,lh:1.2,w:w,c:c,f:f||"g",pre:""};if(role==="tel")a.pre="TEL ";if(o)for(var k in o)a[k]=o[k];return a;}
+function R(x,y,w,h,c,a){return{k:"r",x:x,y:y,w:w,h:h,c:c,a:a==null?1:a};}
+var TPLS=[
+{id:"a",name:"すっきり標準",bg:"#ffffff",items:function(){return[
+ T("en",8,8,8.5,.42,700,"#0a3d62"),T("co",8,13,6.5,.2,400,"#52606d"),R(8,20,9,.35,"#0d9488"),
+ T("tt",8,24,7,.1,400,"#52606d"),T("nm",8,28.5,15,.3,700,"#0a3d62"),
+ T("ad",8,40.5,6.3,0,400,"#333333"),T("tel",8,44.3,6.3,0,400,"#333333"),T("mail",30,44.3,6.3,0,400,"#333333"),T("web",8,48,6.3,0,400,"#333333")];}},
+{id:"b",name:"上に帯・大手風",bg:"#ffffff",items:function(){return[
+ R(0,0,91,1.6,"#12304d"),T("co",8,8,8.5,.14,700,"#12304d"),T("en",8,12.7,5.2,.2,400,"#7b8794"),
+ T("tt",8,23.5,7,.08,400,"#52606d"),T("nm",8,27.5,15,.28,700,"#12304d"),R(8,39.6,75,.2,"#cbd2d9"),
+ T("ad",8,41.6,6.2,0,400,"#3e4c59"),T("tel",8,45.2,6.2,0,400,"#3e4c59"),T("mail",30,45.2,6.2,0,400,"#3e4c59"),T("web",8,48.8,6.2,0,400,"#3e4c59")];}},
+{id:"c",name:"明朝・格式",bg:"#ffffff",items:function(){return[
+ T("co",8,8,10.5,.18,700,"#1c3144","m"),T("en",8,13.8,5.2,.22,400,"#8d7b68"),R(8,20,9,.35,"#8d7b68"),
+ T("tt",8,24,7,.1,400,"#444444","m"),T("nm",8,28.5,16,.3,700,"#1c3144","m"),
+ T("ad",8,40.5,6.3,0,400,"#333333"),T("tel",8,44.3,6.3,0,400,"#333333"),T("mail",30,44.3,6.3,0,400,"#333333"),T("web",8,48,6.3,0,400,"#333333")];}},
+{id:"d",name:"左に色の帯",bg:"#ffffff",items:function(){return[
+ R(0,0,4,55,"#0d9488"),T("co",11,7,8,.15,700,"#0a3d62"),T("en",11,11.8,5.2,.2,400,"#7b8794"),
+ T("tt",11,22,7,.1,400,"#52606d"),T("nm",11,26,15,.3,700,"#0a3d62"),
+ T("ad",11,40,6.3,0,400,"#333333"),T("tel",11,43.8,6.3,0,400,"#333333"),T("mail",33,43.8,6.3,0,400,"#333333"),T("web",11,47.6,6.3,0,400,"#333333")];}},
+{id:"e",name:"文字を大きく（読みやすい）",bg:"#ffffff",items:function(){return[
+ T("co",8,6,9,.1,700,"#1a1a1a"),T("tt",8,14,8.5,.05,400,"#444444"),T("nm",8,19,20,.2,700,"#0a3d62"),
+ R(8,33,12,.4,"#0d9488"),
+ T("ad",8,35.5,7.5,0,400,"#222222"),T("tel",8,39.5,7.5,0,400,"#222222"),T("mail",8,43.5,7.5,0,400,"#222222"),T("web",8,47.5,7.5,0,400,"#222222"),T("en",60,6,6,.2,400,"#8a94a0")];}},
+{id:"f",name:"右にロゴの場所",bg:"#ffffff",items:function(){return[
+ R(62,8,21,21,"#eef1f4"),{k:"t",x:67.5,y:16.5,s:7,l:.1,lh:1.2,w:700,c:"#9aa5b1",f:"g",t:"LOGO",pre:"",role:""},
+ T("co",8,8,8,.12,700,"#12304d"),T("en",8,12.6,5.2,.2,400,"#7b8794"),R(8,19,9,.35,"#0d9488"),
+ T("tt",8,23,7,.08,400,"#52606d"),T("nm",8,27,15,.28,700,"#12304d"),
+ T("ad",8,40.5,6.2,0,400,"#3e4c59"),T("tel",8,44.2,6.2,0,400,"#3e4c59"),T("mail",30,44.2,6.2,0,400,"#3e4c59"),T("web",8,47.9,6.2,0,400,"#3e4c59")];}}
+];
+function stamp(list){return list.map(function(o){o.id=S.next++;return o;});}
+
+/* ---- history ---- */
+var hist=[],fut=[];
+function snapState(){return JSON.stringify({items:S.items,bg:S.bg,vals:S.vals,tpl:S.tpl,next:S.next,sel:S.sel});}
+function push(){var s=snapState();if(hist[hist.length-1]!==s){hist.push(s);if(hist.length>60)hist.shift();fut=[];}btns();}
+function restore(s){var o=JSON.parse(s);S.items=o.items;S.bg=o.bg;S.vals=o.vals;S.tpl=o.tpl;S.next=o.next;S.sel=o.sel;document.getElementById("bg").value=S.bg;all();}
+function btns(){document.getElementById("undo").disabled=!hist.length;document.getElementById("redo").disabled=!fut.length;}
+document.getElementById("undo").onclick=function(){if(!hist.length)return;fut.push(snapState());restore(hist.pop());};
+document.getElementById("redo").onclick=function(){if(!fut.length)return;hist.push(snapState());restore(fut.pop());};
+
+/* ---- render ---- */
+function textOf(it){if(it.role){var v=S.vals[it.role];if(v)return{t:(it.pre||"")+v,ph:false};return{t:(it.pre||"")+(SAMPLE[it.role]||""),ph:true};}return{t:it.t||"",ph:false};}
+function itemHtml(it,mode){ /* mode: pv | print | mini */
+ var tx=it.k==="t"?textOf(it):null;
+ if(mode==="print"&&tx&&tx.ph)return"";
+ var cls="o "+it.k+((mode==="pv"&&it.id===S.sel)?" sel":"")+((mode!=="print"&&tx&&tx.ph)?" ph":"");
+ if(mode==="mini")cls=cls.replace(" ph","");
+ var st="left:"+it.x+"mm;top:"+it.y+"mm;",inner="";
+ if(it.k==="t"){st+="font-size:"+it.s+"pt;letter-spacing:"+it.l+"em;color:"+it.c+";font-weight:"+it.w+";line-height:"+it.lh+";font-family:"+FONTS[it.f||"g"]+";";inner=esc(tx.t);if(!tx.t&&mode==="pv")inner='<span style="opacity:.4">文字</span>';}
  else if(it.k==="r"){st+="width:"+it.w+"mm;height:"+it.h+"mm;background:"+it.c+";opacity:"+it.a+";";}
- else if(it.k==="i"){st+="width:"+it.w+"mm;height:"+it.h+"mm;";inner='<img src="'+it.src+'" alt="" draggable="false">';}
- return '<div class="'+cls+'" data-id="'+it.id+'" style="'+st+'">'+inner+'</div>';
+ else{st+="width:"+it.w+"mm;height:"+it.h+"mm;"+(it.circ?"border-radius:50%;overflow:hidden;":"");inner='<img src="'+it.src+'" alt="" draggable="false">';}
+ return'<div class="'+cls+'" data-id="'+it.id+'" style="'+st+'">'+inner+'</div>';
 }
-function cardHtml(sel){var h="";S.items.forEach(function(it){h+=itemHtml(it,sel);});return h;}
+function cardHtml(mode,items){var h="";(items||S.items).forEach(function(it){h+=itemHtml(it,mode);});return h;}
+function pvZoom(){return Math.min(3.4,(Math.min(window.innerWidth,760)-32)/344);}
 function renderCard(){
- var pv=document.getElementById("pv");
- pv.style.background=S.bg;
- pv.innerHTML=cardHtml(true);
- pv.style.zoom=Math.min(3.4,(Math.min(window.innerWidth,760)-32)/344);
+ var pv=document.getElementById("pv");pv.style.background=S.bg;pv.innerHTML=cardHtml("pv")+(S.items.length?"":'<div class="empty">ここに名刺ができます<br>下の「① 見本を選ぶ」から始めてください</div>');pv.style.zoom=pvZoom();
+ if(S.safe){var sf=document.createElement("div");sf.className="safe";pv.appendChild(sf);}
  var it=get(S.sel);
- if(it&&it.k!=="t"){var hd=document.createElement("div");hd.className="hd";hd.dataset.hd="1";hd.style.left=(it.x+it.w-1.6)+"mm";hd.style.top=(it.y+it.h-1.6)+"mm";pv.appendChild(hd);}
- var h=cardHtml(false),s="";for(var i=0;i<10;i++)s+='<div class="card" style="background:'+S.bg+'">'+h+'</div>';
- var sh=document.getElementById("sheet");sh.innerHTML=s;sh.style.transform="translate("+S.ox+"mm,"+S.oy+"mm)";
+ if(it&&it.k!=="t"){var hd=document.createElement("div");hd.className="hd";hd.dataset.hd="1";hd.style.left=(it.x+it.w-2.5)+"mm";hd.style.top=(it.y+it.h-2.5)+"mm";pv.appendChild(hd);}
+ var h=cardHtml("print"),s="";for(var i=0;i<10;i++)s+='<div class="card" style="background:'+S.bg+'">'+h+'</div>';
+ var sh=document.getElementById("sheet");sh.className="sheet"+(S.test?" test":"");
+ sh.innerHTML=s+(S.test?'<div class="ruler"></div><div class="rl">この線が10cmになっていれば、正しい大きさで印刷されています</div>':"");
+ sh.style.transform="translate("+S.ox+"mm,"+S.oy+"mm)";
  save();
 }
-var NAMES={t:"文字",r:"四角",i:"画像"};
 function layers(){
  var c=document.getElementById("layers");c.innerHTML="";
- if(!S.items.length){c.innerHTML='<span class="note">まだ何もありません。上のボタンで足してください。</span>';}
+ if(!S.items.length)c.innerHTML='<span class="note">まだ何もありません。「① 見本を選ぶ」か、上の「足す」から始めてください。</span>';
  S.items.forEach(function(it){var b=document.createElement("button");b.type="button";
-  var label=it.k==="t"?(((it.t||"文字").split("\n")[0]).slice(0,12)||"文字"):(it.k==="r"?(it.h<=1?"線":"四角"):"画像");
-  b.textContent=label;if(it.id===S.sel)b.className="on";b.onclick=function(){S.sel=it.id;layers();edit();renderCard();};c.appendChild(b);});
+  var lb;if(it.k==="t"){var t=textOf(it).t;lb=(t.split("\n")[0]||"文字").slice(0,10);}else if(it.k==="r")lb=(it.h<=1||it.w<=1)?"線":"四角";else lb="写真";
+  b.textContent=lb;if(it.id===S.sel)b.className="on";b.onclick=function(){S.sel=it.id;layers();edit();renderCard();};c.appendChild(b);});
 }
-function field(lbl,id,type,val,attrs,full){return '<div'+(full?' class="full"':'')+'><label for="'+id+'">'+lbl+'</label><input type="'+type+'" id="'+id+'" value="'+esc(val)+'" '+(attrs||"")+'></div>';}
+function fld(lbl,id,type,val,attrs){return'<div><label for="'+id+'">'+lbl+'</label><input type="'+type+'" id="'+id+'" value="'+esc(val)+'" '+(attrs||"")+'></div>';}
 function edit(){
- var ed=document.getElementById("ed");var it=get(S.sel);
- if(!it){ed.innerHTML='<div class="full note">何も選んでいません。</div>';return;}
+ var ed=document.getElementById("ed"),it=get(S.sel);
+ document.getElementById("ops").style.display=it?"":"none";
+ if(!it){ed.innerHTML="";return;}
  var h="";
  if(it.k==="t"){
-  h+='<div class="full"><label for="e_t">文字（改行できます）</label><textarea id="e_t">'+esc(it.t)+'</textarea></div>';
+  var cur=it.role?(S.vals[it.role]||""):(it.t||"");
+  h+='<div class="fld"><label for="e_t">'+(it.role?"この文字（②で入れたものと同じです）":"文字（改行できます）")+'</label><textarea id="e_t">'+esc(cur)+'</textarea></div>';
+  h+='<div class="lab">文字の大きさ</div><div class="pair"><button class="btn" data-a="sz-">小さく</button><button class="btn" data-a="sz+">大きく</button></div>';
+  h+='<div class="lab">太さ</div><div class="pair"><button class="btn" data-a="bd-">細く</button><button class="btn" data-a="bd+">太く</button></div>';
+  h+='<div class="g"><div><label for="e_f">書体</label><select id="e_f"><option value="g"'+(it.f!=="m"?" selected":"")+'>ゴシック体（くっきり）</option><option value="m"'+(it.f==="m"?" selected":"")+'>明朝体（上品）</option></select></div>'+fld("色","e_c","color",it.c)+'</div>';
+ }else if(it.k==="r"){
+  h+='<div class="lab">横の長さ</div><div class="pair"><button class="btn" data-a="w-">短く</button><button class="btn" data-a="w+">長く</button></div>';
+  h+='<div class="lab">縦の太さ・高さ</div><div class="pair"><button class="btn" data-a="h-">細く（低く）</button><button class="btn" data-a="h+">太く（高く）</button></div>';
+  h+='<div class="g">'+fld("色","e_c","color",it.c)+'</div>';
+ }else{
+  h+='<div class="lab">写真の大きさ</div><div class="pair"><button class="btn" data-a="p-">小さく</button><button class="btn" data-a="p+">大きく</button></div>';
+  h+='<label class="chk"><input type="checkbox" id="e_circ"'+(it.circ?" checked":"")+'> 丸く切り抜く（顔写真に向きます）</label>';
  }
- h+=field("左からの位置(mm)","e_x","number",it.x,'step="0.1"')+field("上からの位置(mm)","e_y","number",it.y,'step="0.1"');
- if(it.k==="t"){
-  h+=field("文字の大きさ(pt)","e_s","number",it.s,'step="0.1"')+field("文字の間隔","e_l","number",it.l,'step="0.05"');
-  h+=field("行の高さ","e_lh","number",it.lh,'step="0.1"')+field("太さ(400〜900)","e_w","number",it.w,'step="100" min="100" max="900"');
-  h+='<div><label for="e_f">書体</label><select id="e_f"><option value="g"'+(it.f!=="m"?" selected":"")+'>ゴシック体</option><option value="m"'+(it.f==="m"?" selected":"")+'>明朝体</option></select></div>';
-  h+=field("色","e_c","color",it.c);
- } else if(it.k==="r"){
-  h+=field("横の長さ(mm)","e_w2","number",it.w,'step="0.1"')+field("縦の長さ(mm)","e_h2","number",it.h,'step="0.1"');
-  h+=field("色","e_c","color",it.c)+field("濃さ(0〜1)","e_a","number",it.a,'step="0.05" min="0" max="1"');
- } else {
-  h+=field("横の長さ(mm)","e_w2","number",it.w,'step="0.1"')+field("縦の長さ(mm)","e_h2","number",it.h,'step="0.1"');
- }
- h+='<div class="full nudge"><button data-n="-1,0" aria-label="左">←</button><button data-n="0,-1" aria-label="上">↑</button><button data-n="0,1" aria-label="下">↓</button><button data-n="1,0" aria-label="右">→</button></div>';
+ h+='<div class="lab">場所を動かす（指でなぞっても動きます）</div><div class="nudge"><button data-n="-1,0" aria-label="左へ">←</button><button data-n="0,-1" aria-label="上へ">↑</button><button data-n="0,1" aria-label="下へ">↓</button><button data-n="1,0" aria-label="右へ">→</button></div>';
+ h+='<details><summary>くわしく数字で決める（慣れた人向け）</summary><div class="g" style="margin-top:8px">';
+ if(it.k==="t")h+=fld("文字の大きさ","e_s","number",it.s,'step="0.1"')+fld("文字の間隔","e_l","number",it.l,'step="0.05"')+fld("行の高さ","e_lh","number",it.lh,'step="0.1"')+fld("太さ(400〜900)","e_w","number",it.w,'step="100" min="100" max="900"');
+ if(it.k==="r")h+=fld("横の長さ(mm)","e_w2","number",it.w,'step="0.1"')+fld("縦の長さ(mm)","e_h2","number",it.h,'step="0.1"')+fld("濃さ(0〜1)","e_a","number",it.a,'step="0.05" min="0" max="1"');
+ if(it.k==="i")h+=fld("横の長さ(mm)","e_w2","number",it.w,'step="0.1"')+fld("縦の長さ(mm)","e_h2","number",it.h,'step="0.1"');
+ h+=fld("左から(mm)","e_x","number",it.x,'step="0.1"')+fld("上から(mm)","e_y","number",it.y,'step="0.1"')+'</div></details>';
  ed.innerHTML=h;
- function nb(id,fn){var e=document.getElementById(id);if(e)e.addEventListener("input",function(){fn(e.value);renderCard();if(id==="e_t")layers();});}
- function n(v,d){var x=parseFloat(v);return isNaN(x)?d:x;}
- nb("e_t",function(v){it.t=v;});nb("e_x",function(v){it.x=n(v,it.x);});nb("e_y",function(v){it.y=n(v,it.y);});
- nb("e_s",function(v){it.s=n(v,it.s);});nb("e_l",function(v){it.l=n(v,it.l);});nb("e_lh",function(v){it.lh=n(v,it.lh);});
- nb("e_w",function(v){it.w=n(v,it.w);});nb("e_f",function(v){it.f=v;});nb("e_c",function(v){it.c=v;});
- nb("e_w2",function(v){it.w=n(v,it.w);});nb("e_h2",function(v){it.h=n(v,it.h);});nb("e_a",function(v){it.a=n(v,it.a);});
- ed.querySelectorAll(".nudge button").forEach(function(b){b.onclick=function(){var d=b.dataset.n.split(",");it.x=r1(it.x+d[0]*.5);it.y=r1(it.y+d[1]*.5);edit();renderCard();};});
+ function nb(id,fn){var e=document.getElementById(id);if(!e)return;e.addEventListener("focus",push);e.addEventListener("input",function(){fn(e.type==="checkbox"?e.checked:e.value);renderCard();if(id==="e_t"){layers();roles();}});}
+ nb("e_t",function(v){if(it.role)S.vals[it.role]=v;else it.t=v;});
+ nb("e_s",function(v){it.s=num(v,it.s);});nb("e_l",function(v){it.l=num(v,it.l);});nb("e_lh",function(v){it.lh=num(v,it.lh);});nb("e_w",function(v){it.w=num(v,it.w);});
+ nb("e_f",function(v){it.f=v;});nb("e_c",function(v){it.c=v;});nb("e_w2",function(v){var w=num(v,it.w);if(it.k==="i"&&it.circ)it.h=w;it.w=w;});
+ nb("e_h2",function(v){it.h=num(v,it.h);});nb("e_a",function(v){it.a=num(v,it.a);});nb("e_x",function(v){it.x=num(v,it.x);});nb("e_y",function(v){it.y=num(v,it.y);});
+ nb("e_circ",function(v){it.circ=v;if(v){var m=Math.min(it.w,it.h);it.w=m;it.h=m;}});
+ var cc=document.getElementById("e_circ");if(cc)cc.addEventListener("change",function(){edit();});
+ ed.querySelectorAll("[data-a]").forEach(function(b){b.onclick=function(){push();var a=b.dataset.a;
+  if(a==="sz+")it.s=r1(it.s+.5);else if(a==="sz-")it.s=Math.max(3,r1(it.s-.5));
+  else if(a==="bd+")it.w=Math.min(900,it.w+300);else if(a==="bd-")it.w=Math.max(300,it.w-300);
+  else if(a==="w+")it.w=r1(it.w+(it.w<3?.5:2));else if(a==="w-")it.w=Math.max(.3,r1(it.w-(it.w<3?.5:2)));
+  else if(a==="h+")it.h=r1(it.h+(it.h<3?.3:2));else if(a==="h-")it.h=Math.max(.2,r1(it.h-(it.h<3?.3:2)));
+  else if(a==="p+"||a==="p-"){var f=a==="p+"?1.1:1/1.1;it.w=r1(it.w*f);it.h=r1(it.h*f);}
+  edit();renderCard();};});
+ ed.querySelectorAll(".nudge button").forEach(function(b){b.onclick=function(){push();var d=b.dataset.n.split(",");it.x=r1(it.x+d[0]*.5);it.y=r1(it.y+d[1]*.5);edit();renderCard();};});
 }
-function full(){layers();edit();renderCard();}
-document.getElementById("addT").onclick=function(){addItem({k:"t",t:"文字を入れる",x:8,y:8,s:9,l:.1,lh:1.2,w:400,f:"g",c:"#1a1a1a"});};
+function roles(){
+ var box=document.getElementById("roles");var act=document.activeElement&&document.activeElement.id;
+ if(box.dataset.built){ROLES.forEach(function(r){var e=document.getElementById("r_"+r[0]);if(e&&e.id!==act&&e.value!==(S.vals[r[0]]||""))e.value=S.vals[r[0]]||"";});return;}
+ box.dataset.built="1";
+ ROLES.forEach(function(r){var d=document.createElement("div");d.className="fld";
+  d.innerHTML='<label for="r_'+r[0]+'">'+r[1]+'</label><input type="text" id="r_'+r[0]+'" placeholder="'+esc(r[2])+'" autocomplete="off" value="'+esc(S.vals[r[0]]||"")+'">';
+  box.appendChild(d);var e=d.querySelector("input");e.addEventListener("focus",push);
+  e.addEventListener("input",function(){S.vals[r[0]]=e.value;renderCard();layers();var it=get(S.sel);if(it&&it.role===r[0])edit();});});
+}
+function tpls(){
+ var box=document.getElementById("tpls");box.innerHTML="";
+ TPLS.forEach(function(t){var b=document.createElement("button");b.type="button";b.className="tpl"+(S.tpl===t.id?" on":"");
+  var saveNext=S.next;var items=t.items().map(function(o){o.id=0;return o;});S.next=saveNext;
+  b.innerHTML='<div class="mini"><div class="card" style="background:'+t.bg+'">'+cardHtml("mini",items.map(function(o){return o;}))+'</div></div>'+esc(t.name);
+  b.onclick=function(){push();S.items=stamp(t.items());S.bg=t.bg;S.tpl=t.id;S.sel=0;for(var i=0;i<S.items.length;i++)if(S.items[i].role==="nm"){S.sel=S.items[i].id;break;}document.getElementById("bg").value=S.bg;all();go(2);};
+  box.appendChild(b);});
+}
+function checks(){
+ var box=document.getElementById("checks"),pv=document.getElementById("pv"),r=pv.getBoundingClientRect(),mm=91/r.width,bad=[],empty=[];
+ S.items.forEach(function(it){if(it.k!=="t")return;var tx=textOf(it);if(tx.ph){return;}if(!tx.t)return;
+  var el=pv.querySelector('[data-id="'+it.id+'"]');if(!el)return;var b=el.getBoundingClientRect();
+  var x1=(b.left-r.left)*mm,y1=(b.top-r.top)*mm,x2=(b.right-r.left)*mm,y2=(b.bottom-r.top)*mm;
+  if(x1<3.5||y1<3.5||x2>87.5||y2>51.5)bad.push(tx.t.split("\n")[0].slice(0,14));});
+ ROLES.forEach(function(r2){if(!S.vals[r2[0]]&&S.items.some(function(i){return i.role===r2[0];}))empty.push(r2[1]);});
+ var h="";
+ if(bad.length)h+='<div class="warn">端に近すぎて、印刷で切れるかもしれない文字があります：<b>'+esc(bad.join("、"))+'</b><br>③で位置を内側に動かしてください。（赤い点線の内側なら安心です）</div>';
+ if(empty.length)h+='<div class="warn">まだ入れていない欄は、印刷されません：'+esc(empty.join("、"))+'</div>';
+ if(!bad.length)h+='<div class="ok">文字の位置は、端から離れています。</div>';
+ box.innerHTML=h;
+}
+
+/* ---- actions ---- */
+function all(){tpls();layers();edit();roles();renderCard();btns();}
+function addItem(o){push();o.id=S.next++;S.items.push(o);S.sel=o.id;go(3);layers();edit();renderCard();}
+document.getElementById("addT").onclick=function(){addItem({k:"t",t:"文字を入れる",x:8,y:8,s:9,l:.1,lh:1.2,w:400,f:"g",c:"#1a1a1a",pre:"",role:""});};
 document.getElementById("addR").onclick=function(){addItem({k:"r",x:8,y:20,w:30,h:10,c:"#0a3d62",a:1});};
 document.getElementById("addL").onclick=function(){addItem({k:"r",x:8,y:20,w:20,h:.35,c:"#0d9488",a:1});};
 document.getElementById("addI").addEventListener("change",function(e){
- var f=e.target.files&&e.target.files[0];if(!f)return;
- var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){
-  var m=900,sc=Math.min(1,m/Math.max(im.width,im.height)),cv=document.createElement("canvas");
+ var f=e.target.files&&e.target.files[0];if(!f)return;var rd=new FileReader();
+ rd.onload=function(){var im=new Image();im.onload=function(){var m=900,sc=Math.min(1,m/Math.max(im.width,im.height)),cv=document.createElement("canvas");
   cv.width=Math.round(im.width*sc);cv.height=Math.round(im.height*sc);cv.getContext("2d").drawImage(im,0,0,cv.width,cv.height);
-  var src=cv.toDataURL("image/png");var w=20,h=r1(w*cv.height/cv.width);
-  addItem({k:"i",x:8,y:8,w:w,h:h,src:src});e.target.value="";};im.src=rd.result;};rd.readAsDataURL(f);
+  var src=cv.toDataURL("image/png");var w=20;addItem({k:"i",x:8,y:8,w:w,h:r1(w*cv.height/cv.width),src:src});e.target.value="";};im.src=rd.result;};rd.readAsDataURL(f);
 });
-document.getElementById("dup").onclick=function(){var it=get(S.sel);if(!it)return;var c=JSON.parse(JSON.stringify(it));c.x=r1(c.x+3);c.y=r1(c.y+3);addItem(c);};
-document.getElementById("del").onclick=function(){S.items=S.items.filter(function(i){return i.id!==S.sel;});S.sel=S.items.length?S.items[S.items.length-1].id:0;full();};
-document.getElementById("front").onclick=function(){var i=S.items.indexOf(get(S.sel));if(i<0||i===S.items.length-1)return;var t=S.items[i];S.items.splice(i,1);S.items.push(t);full();};
-document.getElementById("back").onclick=function(){var i=S.items.indexOf(get(S.sel));if(i<=0)return;var t=S.items[i];S.items.splice(i,1);S.items.unshift(t);full();};
+document.getElementById("dup").onclick=function(){var it=get(S.sel);if(!it)return;push();var c=JSON.parse(JSON.stringify(it));c.id=S.next++;c.x=r1(c.x+3);c.y=r1(c.y+3);S.items.push(c);S.sel=c.id;layers();edit();renderCard();};
+document.getElementById("del").onclick=function(){if(!S.sel)return;push();S.items=S.items.filter(function(i){return i.id!==S.sel;});S.sel=S.items.length?S.items[S.items.length-1].id:0;layers();edit();renderCard();};
+document.getElementById("front").onclick=function(){var i=S.items.indexOf(get(S.sel));if(i<0||i===S.items.length-1)return;push();var t=S.items.splice(i,1)[0];S.items.push(t);layers();renderCard();};
+document.getElementById("back").onclick=function(){var i=S.items.indexOf(get(S.sel));if(i<=0)return;push();var t=S.items.splice(i,1)[0];S.items.unshift(t);layers();renderCard();};
+document.querySelectorAll("[data-al]").forEach(function(b){b.onclick=function(){
+ var it=get(S.sel);if(!it)return;push();var pv=document.getElementById("pv"),r=pv.getBoundingClientRect(),mm=91/r.width,w=it.w,h=it.h;
+ if(it.k==="t"){var el=pv.querySelector('[data-id="'+it.id+'"]');if(el){var q=el.getBoundingClientRect();w=q.width*mm;h=q.height*mm;}}
+ var a=b.dataset.al;if(a==="l")it.x=8;else if(a==="c")it.x=r1((91-w)/2);else if(a==="r")it.x=r1(83-w);else it.y=r1((55-h)/2);
+ edit();renderCard();};});
+document.getElementById("bg").addEventListener("focus",push);
 document.getElementById("bg").addEventListener("input",function(e){S.bg=e.target.value;renderCard();});
-document.getElementById("oX").addEventListener("input",function(e){S.ox=parseFloat(e.target.value)||0;renderCard();});
-document.getElementById("oY").addEventListener("input",function(e){S.oy=parseFloat(e.target.value)||0;renderCard();});
-document.getElementById("clear").onclick=function(){S.items=[];S.sel=0;S.bg="#ffffff";document.getElementById("bg").value="#ffffff";full();};
-document.getElementById("demo").onclick=function(){
- S.items=[];var d=[
- {k:"t",t:"EXAMPLE",x:8,y:8,s:8.5,l:.42,lh:1.2,w:700,f:"g",c:"#0a3d62"},
- {k:"t",t:"株式会社○○",x:8,y:13,s:6.5,l:.2,lh:1.2,w:400,f:"g",c:"#52606d"},
- {k:"r",x:8,y:20,w:9,h:.35,c:"#0d9488",a:1},
- {k:"t",t:"肩書き",x:8,y:24,s:7,l:.1,lh:1.2,w:400,f:"g",c:"#52606d"},
- {k:"t",t:"氏名 見本",x:8,y:28.5,s:15,l:.3,lh:1.2,w:700,f:"g",c:"#0a3d62"},
- {k:"t",t:"福岡市○○区○○1-2-3\nTEL 092-000-0000\nexample.co.jp",x:8,y:41,s:6.3,l:0,lh:1.55,w:400,f:"g",c:"#333333"}];
- d.forEach(function(o){o.id=nid();S.items.push(o);});S.sel=S.items[4].id;S.bg="#ffffff";document.getElementById("bg").value="#ffffff";full();};
-/* drag and resize in preview */
+document.getElementById("snap").addEventListener("change",function(e){S.snap=e.target.checked;save();});
+document.getElementById("safe").addEventListener("change",function(e){S.safe=e.target.checked;renderCard();});
+document.getElementById("test").addEventListener("change",function(e){S.test=e.target.checked;renderCard();});
+function sNow(){var x=S.ox,y=S.oy,t=[];t.push(x===0?"左右はそのまま":(x>0?"右へ"+Math.abs(x)+"mm":"左へ"+Math.abs(x)+"mm"));t.push(y===0?"上下はそのまま":(y>0?"下へ"+Math.abs(y)+"mm":"上へ"+Math.abs(y)+"mm"));document.getElementById("sNow").textContent="いまの調整：" +t.join("、");}
+function shift(dx,dy){S.ox=r1(S.ox+dx);S.oy=r1(S.oy+dy);sNow();renderCard();}
+document.getElementById("sL").onclick=function(){shift(-.5,0);};document.getElementById("sR").onclick=function(){shift(.5,0);};
+document.getElementById("sU").onclick=function(){shift(0,-.5);};document.getElementById("sD").onclick=function(){shift(0,.5);};
+document.getElementById("sZero").onclick=function(){S.ox=0;S.oy=0;sNow();renderCard();};
+document.getElementById("print").onclick=function(){window.print();};
+document.getElementById("clear").onclick=function(){push();S.items=[];S.sel=0;S.bg="#ffffff";S.tpl="";document.getElementById("bg").value="#ffffff";all();go(1);};
+document.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(){go(parseInt(b.dataset.go,10));};});
+function go(n){S.page=n;document.querySelectorAll(".page").forEach(function(p){p.hidden=(p.dataset.p!==String(n));});
+ document.querySelectorAll("#tabs button").forEach(function(b){b.className=(b.dataset.p===String(n))?"on":"";});
+ if(n===4)checks();if(n===2)roles();save();window.scrollTo(0,0);}
+document.querySelectorAll("#tabs button").forEach(function(b){b.onclick=function(){go(parseInt(b.dataset.p,10));};});
+
+/* ---- drag / resize ---- */
 var pvEl=document.getElementById("pv"),drag=null;
 pvEl.addEventListener("pointerdown",function(e){
  var r=pvEl.getBoundingClientRect(),mm=91/r.width;
- if(e.target.dataset&&e.target.dataset.hd){var it=get(S.sel);drag={mode:"rs",it:it,mm:mm,sx:e.clientX,sy:e.clientY,w:it.w,h:it.h,ratio:it.w/it.h};e.preventDefault();return;}
- var el=e.target.closest("[data-id]");if(!el)return;
- var it2=get(parseInt(el.dataset.id,10));if(!it2)return;
- if(S.sel!==it2.id){S.sel=it2.id;layers();edit();renderCard();}
- drag={mode:"mv",it:it2,mm:mm,sx:e.clientX,sy:e.clientY,x:it2.x,y:it2.y};e.preventDefault();
+ if(e.target.dataset&&e.target.dataset.hd){var it=get(S.sel);if(!it)return;push();drag={mode:"rs",it:it,mm:mm,sx:e.clientX,sy:e.clientY,w:it.w,h:it.h,ratio:it.w/it.h};e.preventDefault();return;}
+ var el=e.target.closest("[data-id]");if(!el)return;var it2=get(parseInt(el.dataset.id,10));if(!it2)return;
+ push();var changed=S.sel!==it2.id;S.sel=it2.id;
+ drag={mode:"mv",it:it2,mm:mm,sx:e.clientX,sy:e.clientY,x:it2.x,y:it2.y,moved:false};
+ if(changed){layers();edit();renderCard();}e.preventDefault();
 });
 window.addEventListener("pointermove",function(e){
  if(!drag)return;var it=drag.it,dx=(e.clientX-drag.sx)*drag.mm,dy=(e.clientY-drag.sy)*drag.mm;
- if(drag.mode==="mv"){it.x=r1(drag.x+dx);it.y=r1(drag.y+dy);}
- else{it.w=Math.max(.3,r1(drag.w+dx));if(it.k==="i")it.h=r1(it.w/drag.ratio);else it.h=Math.max(.3,r1(drag.h+dy));}
+ if(drag.mode==="mv"){var nx=drag.x+dx,ny=drag.y+dy;if(S.snap){nx=Math.round(nx*2)/2;ny=Math.round(ny*2)/2;}it.x=r1(nx);it.y=r1(ny);}
+ else{var w=Math.max(.3,drag.w+dx);if(S.snap)w=Math.round(w*2)/2||.5;it.w=r1(w);if(it.k==="i")it.h=r1(it.w/drag.ratio);else{var h=Math.max(.3,drag.h+dy);if(S.snap)h=Math.round(h*2)/2||.5;it.h=r1(h);}}
  renderCard();
 });
 function endDrag(){if(drag){drag=null;edit();}}
 window.addEventListener("pointerup",endDrag);window.addEventListener("pointercancel",endDrag);
-window.addEventListener("resize",renderCard);
-document.getElementById("bg").value=S.bg;document.getElementById("oX").value=S.ox;document.getElementById("oY").value=S.oy;
-full();
-if(location.hash==="#demo")document.getElementById("demo").click();
+window.addEventListener("resize",function(){renderCard();});
+
+/* ---- start ---- */
+document.getElementById("bg").value=S.bg;sNow();
+document.getElementById("snap").checked=!!S.snap;document.getElementById("safe").checked=!!S.safe;document.getElementById("test").checked=!!S.test;
+all();go(loaded?(S.page||2):1);
 </script>
 </body></html>
