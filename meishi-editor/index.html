@@ -144,7 +144,8 @@ summary{font-size:14px;min-height:40px;display:flex;align-items:center;color:#3e
   <li>試し刷りの定規が<b>ちょうど10cm</b>になっているか、定規で測ります。</li>
   <li>コンビニで印刷するときは、PDFに保存してから、お店の印刷サービスにそのPDFを送ります。このとき、お店の画面でも<b>「拡大縮小しない」</b>を選んでください。</li>
  </ol>
- <div class="row"><button class="btn p big" id="print">印刷／PDFにする</button></div>
+ <div class="row"><button class="btn p big" id="doPrint" type="button">印刷／PDFにする</button></div>
+ <p class="note" id="prMsg">押しても印刷の画面が出ないときは、ブラウザの右上のメニュー（︙ または …）から「印刷」を選んでください。同じ結果になります。</p>
  <h2>印刷が少しずれるとき</h2>
  <p class="note">試し刷りをした紙を、名刺用紙に重ねて光に透かしてください。印刷が用紙の枠より<b>右</b>にずれていたら「← 左へ」、<b>下</b>にずれていたら「↑ 上へ」を押します。1回で0.5mm（髪の毛5本ぶんくらい）動きます。</p>
  <div class="nudge"><button id="sL">← 左へ</button><button id="sU">↑ 上へ</button><button id="sD">↓ 下へ</button><button id="sR">→ 右へ</button></div>
@@ -389,7 +390,12 @@ function shift(dx,dy){S.ox=r1(S.ox+dx);S.oy=r1(S.oy+dy);sNow();renderCard();}
 document.getElementById("sL").onclick=function(){shift(-.5,0);};document.getElementById("sR").onclick=function(){shift(.5,0);};
 document.getElementById("sU").onclick=function(){shift(0,-.5);};document.getElementById("sD").onclick=function(){shift(0,.5);};
 document.getElementById("sZero").onclick=function(){S.ox=0;S.oy=0;sNow();renderCard();};
-document.getElementById("print").onclick=function(){window.print();};
+document.getElementById("doPrint").addEventListener("click",function(){
+ renderCard();
+ var m=document.getElementById("prMsg");
+ function run(){try{window.print();m.textContent="印刷の画面を開きました。画面が出ないときは、ブラウザの右上のメニュー（︙ または …）から「印刷」を選んでください。";}catch(e){m.textContent="印刷の画面を開けませんでした。ブラウザの右上のメニュー（︙ または …）から「印刷」を選んでください。";}}
+ if(document.fonts&&document.fonts.ready){document.fonts.ready.then(function(){setTimeout(run,100);});}else run();
+});
 document.getElementById("clear").onclick=function(){push();S.items=[];S.sel=0;S.bg="#ffffff";S.tpl="";document.getElementById("bg").value="#ffffff";all();go(1);};
 document.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(){go(parseInt(b.dataset.go,10));};});
 function go(n){S.page=n;document.querySelectorAll(".page").forEach(function(p){p.hidden=(p.dataset.p!==String(n));});
