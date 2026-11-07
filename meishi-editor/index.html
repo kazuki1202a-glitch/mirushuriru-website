@@ -6,33 +6,35 @@
 body{font-family:"Yu Gothic","Meiryo",sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;color:#1a1a1a;background:#e9edf1}
 .panel{max-width:760px;margin:0 auto;padding:14px max(16px,env(safe-area-inset-left,0px))}
 h1{font-size:18px;margin-bottom:4px}
-.note{font-size:13px;color:#52606d;margin-bottom:10px;line-height:1.5}
+h2{font-size:14px;margin:14px 0 6px}
+.note{font-size:13px;color:#52606d;margin-bottom:8px;line-height:1.5}
 .pv{display:flex;justify-content:center;margin:8px 0 10px}
 #pv{box-shadow:0 0 3mm rgba(0,0,0,.28)}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
-.chips button{font-size:13px;padding:7px 10px;border:1px solid #9aa5b1;border-radius:16px;background:#fff;color:#1a1a1a}
-.chips button.on{background:#0a3d62;color:#fff;border-color:#0a3d62}
+.row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.row button,.row label.btn{font-size:14px;padding:9px 12px;border:1px solid #0a3d62;border-radius:6px;background:#fff;color:#0a3d62;cursor:pointer}
+.row button.p{background:#0a3d62;color:#fff}
+.row button.d{border-color:#b42318;color:#b42318}
+.layers button{font-size:13px;padding:6px 10px;border:1px solid #9aa5b1;border-radius:16px;background:#fff;color:#1a1a1a;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.layers button.on{background:#0a3d62;color:#fff;border-color:#0a3d62}
 .ed{background:#fff;border-radius:6px;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ed>div{min-width:0}
 .ed .full{grid-column:1/-1}
 .ed label{font-size:12px;font-weight:700;display:block;margin-bottom:3px;color:#3e4c59}
-.ed input[type=text],.ed input[type=number]{font-size:16px;padding:8px;border:1px solid #9aa5b1;border-radius:4px;width:100%}
+.ed input[type=text],.ed input[type=number],.ed textarea,.ed select{font-size:16px;padding:8px;border:1px solid #9aa5b1;border-radius:4px;width:100%;font-family:inherit}
+.ed textarea{min-height:64px;resize:vertical}
 .ed input[type=color]{width:100%;height:38px;border:1px solid #9aa5b1;border-radius:4px;padding:2px}
-.nudge{display:flex;gap:6px;align-items:center}
-.nudge button,.act button{font-size:15px;padding:10px 14px;border:0;border-radius:4px;background:#0a3d62;color:#fff}
-.nudge button{flex:1;padding:10px 0}
-.act{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
-.act .sub{background:#fff;color:#0a3d62;border:1px solid #0a3d62}
-.off{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:6px 0 10px}
-.off div{width:110px}
-.off label{font-size:12px;font-weight:700;display:block;margin-bottom:3px}
-.off input{font-size:16px;padding:8px;border:1px solid #9aa5b1;border-radius:4px;width:100%}
+.nudge{display:flex;gap:6px}
+.nudge button{flex:1;font-size:16px;padding:10px 0;border:0;border-radius:4px;background:#0a3d62;color:#fff}
 .sheetwrap{display:none}
-.sheet{width:210mm;height:297mm;padding:11mm 14mm;display:grid;grid-template-columns:repeat(2,91mm);grid-template-rows:repeat(5,55mm);background:#fff}
-.card{width:91mm;height:55mm;position:relative;background:#fff;overflow:hidden}
-.t{position:absolute;white-space:pre;line-height:1.2}
-.ln{position:absolute;height:.35mm}
-#pv .t,#pv .ln{cursor:grab;touch-action:none}
-#pv .sel{outline:.25mm dashed #0d9488;outline-offset:.4mm}
+.sheet{width:210mm;height:297mm;padding:11mm 14mm;display:grid;grid-template-columns:repeat(2,91mm);grid-template-rows:repeat(5,55mm)}
+.card{width:91mm;height:55mm;position:relative;overflow:hidden}
+.o{position:absolute}
+.o.t{white-space:pre}
+.o img{display:block;width:100%;height:100%;object-fit:fill}
+#pv .o{cursor:grab;touch-action:none}
+#pv .sel{outline:.25mm dashed #0d9488;outline-offset:.3mm}
+.hd{position:absolute;width:3.2mm;height:3.2mm;background:#0d9488;border-radius:50%;touch-action:none;cursor:nwse-resize;z-index:50}
+@media (max-width:480px){.ed{grid-template-columns:1fr 1fr}}
 @media print{
  body{background:#fff}
  .panel,.pv{display:none}
@@ -41,113 +43,159 @@ h1{font-size:18px;margin-bottom:4px}
 </style></head><body>
 <div class="panel">
 <h1>名刺エディタ（10面・エーワン51604用）</h1>
-<p class="note">下の項目を選んで文字を入れます。名刺の上の文字は、指でなぞって動かせます。細かい位置は矢印ボタンで直します。</p>
+<p class="note">名刺の上のものは、指でなぞって動かせます。選んだものの右下の丸をなぞると、大きさが変わります（四角・線・画像）。</p>
 <div class="pv"><div class="card" id="pv"></div></div>
-<div class="chips" id="chips"></div>
-<div class="ed">
- <div class="full"><label id="lbText" for="fText">文字</label><input type="text" id="fText" autocomplete="off"></div>
- <div><label for="fX">左からの位置(mm)</label><input type="number" id="fX" step="0.1"></div>
- <div><label for="fY">上からの位置(mm)</label><input type="number" id="fY" step="0.1"></div>
- <div><label for="fS" id="lbS">文字の大きさ(pt)</label><input type="number" id="fS" step="0.1"></div>
- <div id="boxLs"><label for="fL">文字の間隔</label><input type="number" id="fL" step="0.05"></div>
- <div><label for="fC">色</label><input type="color" id="fC"></div>
- <div id="boxB"><label for="fB">太さ</label><input type="number" id="fB" step="100" min="100" max="900"></div>
- <div class="full nudge"><button data-n="-1,0" aria-label="左">←</button><button data-n="0,-1" aria-label="上">↑</button><button data-n="0,1" aria-label="下">↓</button><button data-n="1,0" aria-label="右">→</button></div>
+
+<h2>足す</h2>
+<div class="row">
+ <button class="p" id="addT">文字</button>
+ <button class="p" id="addR">四角</button>
+ <button class="p" id="addL">線</button>
+ <label class="btn" for="addI">画像（ロゴなど）</label><input type="file" id="addI" accept="image/*" hidden>
 </div>
-<div class="note" style="margin-top:12px">印刷のずれ直し（プリンターで紙の位置が少しずれるときに使います）</div>
-<div class="off"><div><label for="oX">右へ(mm)</label><input type="number" id="oX" step="0.1" value="0"></div><div><label for="oY">下へ(mm)</label><input type="number" id="oY" step="0.1" value="0"></div></div>
-<div class="act"><button onclick="window.print()">印刷／PDFにする</button><button class="sub" id="demo">見本の文字を入れる</button><button class="sub" id="reset">位置を元に戻す</button></div>
-<p class="note">印刷の設定は「倍率100%（拡大縮小なし）」「余白なし」にします。まず普通紙で試し刷りしてください。</p>
+
+<h2>いま選んでいるもの</h2>
+<div class="row layers" id="layers"></div>
+<div class="ed" id="ed"></div>
+<div class="row" style="margin-top:8px">
+ <button id="dup">複製</button><button id="front">前へ</button><button id="back">後ろへ</button><button class="d" id="del">削除</button>
+</div>
+
+<h2>名刺の地の色</h2>
+<div class="ed"><div><label for="bg">色</label><input type="color" id="bg" value="#ffffff"></div></div>
+
+<h2>印刷のずれ直し</h2>
+<p class="note">プリンターで紙の位置が少しずれるときに使います。</p>
+<div class="ed"><div><label for="oX">右へ(mm)</label><input type="number" id="oX" step="0.1" value="0"></div><div><label for="oY">下へ(mm)</label><input type="number" id="oY" step="0.1" value="0"></div></div>
+
+<div class="row" style="margin-top:14px">
+ <button class="p" onclick="window.print()">印刷／PDFにする</button>
+ <button id="demo">見本を入れる</button>
+ <button class="d" id="clear">全部消す</button>
+</div>
+<p class="note">印刷の設定は「倍率100%（拡大縮小なし）」「余白なし」にします。まず普通紙で試し刷りしてください。内容は、この携帯の中だけに残ります。</p>
 </div>
 <div class="sheetwrap"><div class="sheet" id="sheet"></div></div>
 <script>
-var KEY="meishi_editor2";
-var NAMES={en:"英字の社名",co:"会社名",tt:"肩書き",nm:"氏名",ad:"住所",tel:"電話",mail:"メール",web:"ホームページ",ln:"線"};
-function defaults(){return{
- en:{t:"",x:8,y:8,s:8.5,l:.42,c:"#0a3d62",w:700},
- co:{t:"",x:8,y:13,s:6.5,l:.2,c:"#52606d",w:400},
- ln:{x:8,y:20,s:9,c:"#0d9488",on:1},
- tt:{t:"",x:8,y:24,s:7,l:.1,c:"#52606d",w:400},
- nm:{t:"",x:8,y:28.5,s:15,l:.3,c:"#0a3d62",w:700},
- ad:{t:"",x:8,y:40.5,s:6.3,l:0,c:"#333333",w:400},
- tel:{t:"",x:8,y:44.3,s:6.3,l:0,c:"#333333",w:400},
- mail:{t:"",x:30,y:44.3,s:6.3,l:0,c:"#333333",w:400},
- web:{t:"",x:8,y:48,s:6.3,l:0,c:"#333333",w:400}
-};}
-var order=["en","co","ln","tt","nm","ad","tel","mail","web"];
-var S={items:defaults(),ox:0,oy:0};var cur="nm";
-try{var sv=JSON.parse(localStorage.getItem(KEY)||"null");if(sv&&sv.items){S=sv;var d=defaults();order.forEach(function(k){if(!S.items[k])S.items[k]=d[k];});}}catch(e){}
+var KEY="meishi_editor3";
+var S={items:[],bg:"#ffffff",ox:0,oy:0,next:1,sel:0};
+try{var sv=JSON.parse(localStorage.getItem(KEY)||"null");if(sv&&sv.items)S=sv;}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
-function esc(s){return String(s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
-function cardHtml(sel){
- var h="";
- order.forEach(function(k){var it=S.items[k];var cls=(sel&&k===cur)?" sel":"";
-  if(k==="ln"){h+='<div class="ln'+cls+'" data-k="ln" style="left:'+it.x+'mm;top:'+it.y+'mm;width:'+it.s+'mm;background:'+it.c+'"></div>';return;}
-  if(!it.t&&!(sel&&k===cur))return;
-  var txt=it.t||(sel?NAMES[k]:"");
-  var ph=(!it.t)?";opacity:.35":"";
-  h+='<div class="t'+cls+'" data-k="'+k+'" style="left:'+it.x+'mm;top:'+it.y+'mm;font-size:'+it.s+'pt;letter-spacing:'+it.l+'em;color:'+it.c+';font-weight:'+it.w+ph+'">'+esc(k==="tel"&&it.t?"TEL "+it.t:txt)+'</div>';
- });
- return h;
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function get(id){for(var i=0;i<S.items.length;i++)if(S.items[i].id===id)return S.items[i];return null;}
+function nid(){return S.next++;}
+function r1(n){return Math.round(n*10)/10;}
+function addItem(o){o.id=nid();S.items.push(o);S.sel=o.id;full();}
+var FONTS={g:'"Yu Gothic","Meiryo",sans-serif',m:'"Yu Mincho","MS Mincho",serif'};
+function itemHtml(it,sel){
+ var cls="o "+it.k+((sel&&it.id===S.sel)?" sel":"");
+ var st="left:"+it.x+"mm;top:"+it.y+"mm;";
+ var inner="";
+ if(it.k==="t"){st+="font-size:"+it.s+"pt;letter-spacing:"+it.l+"em;color:"+it.c+";font-weight:"+it.w+";line-height:"+it.lh+";font-family:"+FONTS[it.f||"g"]+";";inner=esc(it.t||"");if(!it.t&&sel)inner='<span style="opacity:.4">文字</span>';}
+ else if(it.k==="r"){st+="width:"+it.w+"mm;height:"+it.h+"mm;background:"+it.c+";opacity:"+it.a+";";}
+ else if(it.k==="i"){st+="width:"+it.w+"mm;height:"+it.h+"mm;";inner='<img src="'+it.src+'" alt="" draggable="false">';}
+ return '<div class="'+cls+'" data-id="'+it.id+'" style="'+st+'">'+inner+'</div>';
 }
-function render(){
- var pv=document.getElementById("pv");pv.innerHTML=cardHtml(true);
+function cardHtml(sel){var h="";S.items.forEach(function(it){h+=itemHtml(it,sel);});return h;}
+function renderCard(){
+ var pv=document.getElementById("pv");
+ pv.style.background=S.bg;
+ pv.innerHTML=cardHtml(true);
  pv.style.zoom=Math.min(3.4,(Math.min(window.innerWidth,760)-32)/344);
- var h=cardHtml(false),s="";for(var i=0;i<10;i++)s+='<div class="card">'+h+'</div>';
+ var it=get(S.sel);
+ if(it&&it.k!=="t"){var hd=document.createElement("div");hd.className="hd";hd.dataset.hd="1";hd.style.left=(it.x+it.w-1.6)+"mm";hd.style.top=(it.y+it.h-1.6)+"mm";pv.appendChild(hd);}
+ var h=cardHtml(false),s="";for(var i=0;i<10;i++)s+='<div class="card" style="background:'+S.bg+'">'+h+'</div>';
  var sh=document.getElementById("sheet");sh.innerHTML=s;sh.style.transform="translate("+S.ox+"mm,"+S.oy+"mm)";
  save();
 }
-function chips(){
- var c=document.getElementById("chips");c.innerHTML="";
- order.forEach(function(k){var b=document.createElement("button");b.type="button";b.textContent=NAMES[k];if(k===cur)b.className="on";b.onclick=function(){cur=k;chips();fill();render();};c.appendChild(b);});
+var NAMES={t:"文字",r:"四角",i:"画像"};
+function layers(){
+ var c=document.getElementById("layers");c.innerHTML="";
+ if(!S.items.length){c.innerHTML='<span class="note">まだ何もありません。上のボタンで足してください。</span>';}
+ S.items.forEach(function(it){var b=document.createElement("button");b.type="button";
+  var label=it.k==="t"?(((it.t||"文字").split("\n")[0]).slice(0,12)||"文字"):(it.k==="r"?(it.h<=1?"線":"四角"):"画像");
+  b.textContent=label;if(it.id===S.sel)b.className="on";b.onclick=function(){S.sel=it.id;layers();edit();renderCard();};c.appendChild(b);});
 }
-function fill(){
- var it=S.items[cur],isL=cur==="ln";
- document.getElementById("lbText").textContent=NAMES[cur]+(isL?"（文字なし）":"の文字");
- var ft=document.getElementById("fText");ft.disabled=isL;ft.value=isL?"":it.t;
- document.getElementById("fX").value=it.x;document.getElementById("fY").value=it.y;
- document.getElementById("fS").value=it.s;document.getElementById("lbS").textContent=isL?"線の長さ(mm)":"文字の大きさ(pt)";
- document.getElementById("boxLs").style.display=isL?"none":"";document.getElementById("boxB").style.display=isL?"none":"";
- if(!isL){document.getElementById("fL").value=it.l;document.getElementById("fB").value=it.w;}
- document.getElementById("fC").value=it.c;
+function field(lbl,id,type,val,attrs,full){return '<div'+(full?' class="full"':'')+'><label for="'+id+'">'+lbl+'</label><input type="'+type+'" id="'+id+'" value="'+esc(val)+'" '+(attrs||"")+'></div>';}
+function edit(){
+ var ed=document.getElementById("ed");var it=get(S.sel);
+ if(!it){ed.innerHTML='<div class="full note">何も選んでいません。</div>';return;}
+ var h="";
+ if(it.k==="t"){
+  h+='<div class="full"><label for="e_t">文字（改行できます）</label><textarea id="e_t">'+esc(it.t)+'</textarea></div>';
+ }
+ h+=field("左からの位置(mm)","e_x","number",it.x,'step="0.1"')+field("上からの位置(mm)","e_y","number",it.y,'step="0.1"');
+ if(it.k==="t"){
+  h+=field("文字の大きさ(pt)","e_s","number",it.s,'step="0.1"')+field("文字の間隔","e_l","number",it.l,'step="0.05"');
+  h+=field("行の高さ","e_lh","number",it.lh,'step="0.1"')+field("太さ(400〜900)","e_w","number",it.w,'step="100" min="100" max="900"');
+  h+='<div><label for="e_f">書体</label><select id="e_f"><option value="g"'+(it.f!=="m"?" selected":"")+'>ゴシック体</option><option value="m"'+(it.f==="m"?" selected":"")+'>明朝体</option></select></div>';
+  h+=field("色","e_c","color",it.c);
+ } else if(it.k==="r"){
+  h+=field("横の長さ(mm)","e_w2","number",it.w,'step="0.1"')+field("縦の長さ(mm)","e_h2","number",it.h,'step="0.1"');
+  h+=field("色","e_c","color",it.c)+field("濃さ(0〜1)","e_a","number",it.a,'step="0.05" min="0" max="1"');
+ } else {
+  h+=field("横の長さ(mm)","e_w2","number",it.w,'step="0.1"')+field("縦の長さ(mm)","e_h2","number",it.h,'step="0.1"');
+ }
+ h+='<div class="full nudge"><button data-n="-1,0" aria-label="左">←</button><button data-n="0,-1" aria-label="上">↑</button><button data-n="0,1" aria-label="下">↓</button><button data-n="1,0" aria-label="右">→</button></div>';
+ ed.innerHTML=h;
+ function nb(id,fn){var e=document.getElementById(id);if(e)e.addEventListener("input",function(){fn(e.value);renderCard();if(id==="e_t")layers();});}
+ function n(v,d){var x=parseFloat(v);return isNaN(x)?d:x;}
+ nb("e_t",function(v){it.t=v;});nb("e_x",function(v){it.x=n(v,it.x);});nb("e_y",function(v){it.y=n(v,it.y);});
+ nb("e_s",function(v){it.s=n(v,it.s);});nb("e_l",function(v){it.l=n(v,it.l);});nb("e_lh",function(v){it.lh=n(v,it.lh);});
+ nb("e_w",function(v){it.w=n(v,it.w);});nb("e_f",function(v){it.f=v;});nb("e_c",function(v){it.c=v;});
+ nb("e_w2",function(v){it.w=n(v,it.w);});nb("e_h2",function(v){it.h=n(v,it.h);});nb("e_a",function(v){it.a=n(v,it.a);});
+ ed.querySelectorAll(".nudge button").forEach(function(b){b.onclick=function(){var d=b.dataset.n.split(",");it.x=r1(it.x+d[0]*.5);it.y=r1(it.y+d[1]*.5);edit();renderCard();};});
 }
-function num(v,d){var n=parseFloat(v);return isNaN(n)?d:n;}
-function bind(id,fn){document.getElementById(id).addEventListener("input",function(e){fn(e.target.value);render();});}
-bind("fText",function(v){S.items[cur].t=v;});
-bind("fX",function(v){S.items[cur].x=num(v,S.items[cur].x);});
-bind("fY",function(v){S.items[cur].y=num(v,S.items[cur].y);});
-bind("fS",function(v){S.items[cur].s=num(v,S.items[cur].s);});
-bind("fL",function(v){S.items[cur].l=num(v,S.items[cur].l);});
-bind("fB",function(v){S.items[cur].w=num(v,S.items[cur].w);});
-bind("fC",function(v){S.items[cur].c=v;});
-bind("oX",function(v){S.ox=num(v,0);});
-bind("oY",function(v){S.oy=num(v,0);});
-document.querySelectorAll(".nudge button").forEach(function(b){b.onclick=function(){
- var n=b.dataset.n.split(",");var it=S.items[cur];
- it.x=Math.round((it.x+parseFloat(n[0])*.5)*10)/10;it.y=Math.round((it.y+parseFloat(n[1])*.5)*10)/10;fill();render();};});
-document.getElementById("reset").onclick=function(){var d=defaults();order.forEach(function(k){var t=S.items[k].t;S.items[k]=d[k];if(t)S.items[k].t=t;});S.ox=0;S.oy=0;document.getElementById("oX").value=0;document.getElementById("oY").value=0;fill();render();};
-document.getElementById("demo").onclick=function(){var d={en:"EXAMPLE",co:"株式会社○○",tt:"肩書き",nm:"氏名 見本",ad:"福岡市○○区○○1-2-3",tel:"092-000-0000",mail:"info@example.co.jp",web:"example.co.jp"};for(var k in d)S.items[k].t=d[k];fill();render();};
-/* drag in preview */
-var drag=null;
-var pvEl=document.getElementById("pv");
+function full(){layers();edit();renderCard();}
+document.getElementById("addT").onclick=function(){addItem({k:"t",t:"文字を入れる",x:8,y:8,s:9,l:.1,lh:1.2,w:400,f:"g",c:"#1a1a1a"});};
+document.getElementById("addR").onclick=function(){addItem({k:"r",x:8,y:20,w:30,h:10,c:"#0a3d62",a:1});};
+document.getElementById("addL").onclick=function(){addItem({k:"r",x:8,y:20,w:20,h:.35,c:"#0d9488",a:1});};
+document.getElementById("addI").addEventListener("change",function(e){
+ var f=e.target.files&&e.target.files[0];if(!f)return;
+ var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){
+  var m=900,sc=Math.min(1,m/Math.max(im.width,im.height)),cv=document.createElement("canvas");
+  cv.width=Math.round(im.width*sc);cv.height=Math.round(im.height*sc);cv.getContext("2d").drawImage(im,0,0,cv.width,cv.height);
+  var src=cv.toDataURL("image/png");var w=20,h=r1(w*cv.height/cv.width);
+  addItem({k:"i",x:8,y:8,w:w,h:h,src:src});e.target.value="";};im.src=rd.result;};rd.readAsDataURL(f);
+});
+document.getElementById("dup").onclick=function(){var it=get(S.sel);if(!it)return;var c=JSON.parse(JSON.stringify(it));c.x=r1(c.x+3);c.y=r1(c.y+3);addItem(c);};
+document.getElementById("del").onclick=function(){S.items=S.items.filter(function(i){return i.id!==S.sel;});S.sel=S.items.length?S.items[S.items.length-1].id:0;full();};
+document.getElementById("front").onclick=function(){var i=S.items.indexOf(get(S.sel));if(i<0||i===S.items.length-1)return;var t=S.items[i];S.items.splice(i,1);S.items.push(t);full();};
+document.getElementById("back").onclick=function(){var i=S.items.indexOf(get(S.sel));if(i<=0)return;var t=S.items[i];S.items.splice(i,1);S.items.unshift(t);full();};
+document.getElementById("bg").addEventListener("input",function(e){S.bg=e.target.value;renderCard();});
+document.getElementById("oX").addEventListener("input",function(e){S.ox=parseFloat(e.target.value)||0;renderCard();});
+document.getElementById("oY").addEventListener("input",function(e){S.oy=parseFloat(e.target.value)||0;renderCard();});
+document.getElementById("clear").onclick=function(){S.items=[];S.sel=0;S.bg="#ffffff";document.getElementById("bg").value="#ffffff";full();};
+document.getElementById("demo").onclick=function(){
+ S.items=[];var d=[
+ {k:"t",t:"EXAMPLE",x:8,y:8,s:8.5,l:.42,lh:1.2,w:700,f:"g",c:"#0a3d62"},
+ {k:"t",t:"株式会社○○",x:8,y:13,s:6.5,l:.2,lh:1.2,w:400,f:"g",c:"#52606d"},
+ {k:"r",x:8,y:20,w:9,h:.35,c:"#0d9488",a:1},
+ {k:"t",t:"肩書き",x:8,y:24,s:7,l:.1,lh:1.2,w:400,f:"g",c:"#52606d"},
+ {k:"t",t:"氏名 見本",x:8,y:28.5,s:15,l:.3,lh:1.2,w:700,f:"g",c:"#0a3d62"},
+ {k:"t",t:"福岡市○○区○○1-2-3\nTEL 092-000-0000\nexample.co.jp",x:8,y:41,s:6.3,l:0,lh:1.55,w:400,f:"g",c:"#333333"}];
+ d.forEach(function(o){o.id=nid();S.items.push(o);});S.sel=S.items[4].id;S.bg="#ffffff";document.getElementById("bg").value="#ffffff";full();};
+/* drag and resize in preview */
+var pvEl=document.getElementById("pv"),drag=null;
 pvEl.addEventListener("pointerdown",function(e){
- var el=e.target.closest("[data-k]");if(!el)return;
- cur=el.dataset.k;var it=S.items[cur];
- var r=pvEl.getBoundingClientRect();
- drag={k:cur,mm:91/r.width,sx:e.clientX,sy:e.clientY,ox:it.x,oy:it.y};
- chips();fill();render();e.preventDefault();
+ var r=pvEl.getBoundingClientRect(),mm=91/r.width;
+ if(e.target.dataset&&e.target.dataset.hd){var it=get(S.sel);drag={mode:"rs",it:it,mm:mm,sx:e.clientX,sy:e.clientY,w:it.w,h:it.h,ratio:it.w/it.h};e.preventDefault();return;}
+ var el=e.target.closest("[data-id]");if(!el)return;
+ var it2=get(parseInt(el.dataset.id,10));if(!it2)return;
+ if(S.sel!==it2.id){S.sel=it2.id;layers();edit();renderCard();}
+ drag={mode:"mv",it:it2,mm:mm,sx:e.clientX,sy:e.clientY,x:it2.x,y:it2.y};e.preventDefault();
 });
 window.addEventListener("pointermove",function(e){
- if(!drag)return;var it=S.items[drag.k];
- it.x=Math.round((drag.ox+(e.clientX-drag.sx)*drag.mm)*10)/10;
- it.y=Math.round((drag.oy+(e.clientY-drag.sy)*drag.mm)*10)/10;
- var el=pvEl.querySelector('[data-k="'+drag.k+'"]');if(el){el.style.left=it.x+"mm";el.style.top=it.y+"mm";}
+ if(!drag)return;var it=drag.it,dx=(e.clientX-drag.sx)*drag.mm,dy=(e.clientY-drag.sy)*drag.mm;
+ if(drag.mode==="mv"){it.x=r1(drag.x+dx);it.y=r1(drag.y+dy);}
+ else{it.w=Math.max(.3,r1(drag.w+dx));if(it.k==="i")it.h=r1(it.w/drag.ratio);else it.h=Math.max(.3,r1(drag.h+dy));}
+ renderCard();
 });
-function endDrag(){if(drag){drag=null;fill();render();}}
+function endDrag(){if(drag){drag=null;edit();}}
 window.addEventListener("pointerup",endDrag);window.addEventListener("pointercancel",endDrag);
-window.addEventListener("resize",render);
-document.getElementById("oX").value=S.ox;document.getElementById("oY").value=S.oy;
-chips();fill();
-if(location.hash==="#demo"){document.getElementById("demo").click();}else render();
+window.addEventListener("resize",renderCard);
+document.getElementById("bg").value=S.bg;document.getElementById("oX").value=S.ox;document.getElementById("oY").value=S.oy;
+full();
+if(location.hash==="#demo")document.getElementById("demo").click();
 </script>
 </body></html>
