@@ -1,5 +1,7 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>名刺エディタ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@400;500;700&family=Shippori+Mincho:wght@400;500;700&family=BIZ+UDPGothic:wght@400;700&family=BIZ+UDPMincho:wght@400;700&family=Inter:wght@400;500;700&family=Montserrat:wght@400;500;700&family=Cormorant+Garamond:wght@400;500;700&family=Playfair+Display:wght@400;500;700&display=swap">
 <style>
 @page{size:A4;margin:0}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -51,6 +53,9 @@ input[type=color]{width:100%;height:46px;border:1px solid #9aa5b1;border-radius:
 details{margin:10px 0;border:1px solid #cfd6dd;border-radius:8px;padding:8px 10px}
 summary{font-size:14px;min-height:40px;display:flex;align-items:center;color:#3e4c59}
 .empty{position:absolute;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:7pt;color:#9aa5b1;text-align:center;line-height:1.6;pointer-events:none}
+.sws{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.sw{width:40px;height:40px;border-radius:50%;border:2px solid #cfd6dd;padding:0}
+.sw.on{border-color:#0d9488;box-shadow:0 0 0 2px #0d9488}
 .steps{font-size:14px;line-height:1.7;padding-left:1.3em;margin-bottom:10px}
 .steps li{margin-bottom:6px}
 .sheetwrap{display:none}
@@ -97,11 +102,15 @@ summary{font-size:14px;min-height:40px;display:flex;align-items:center;color:#3e
 </div>
 
 <div class="page" data-p="3" hidden>
+ <h2>書体をまとめて変える</h2>
+ <p class="note">ボタンひとつで、名刺の全部の文字の書体が変わります。気に入らなければ、上の「戻す」で戻せます。</p>
+ <div class="row" id="fsets"></div>
  <h2>足す</h2>
  <div class="row">
   <button class="btn p" id="addT">＋ 文字</button>
   <button class="btn p" id="addR">＋ 四角</button>
   <button class="btn p" id="addL">＋ 線</button>
+  <button class="btn p" id="addO">＋ 丸</button>
   <label class="btn" for="addI">＋ 写真・ロゴ</label><input type="file" id="addI" accept="image/*" hidden>
  </div>
  <h2>動かしたいものを選ぶ</h2>
@@ -118,7 +127,7 @@ summary{font-size:14px;min-height:40px;display:flex;align-items:center;color:#3e
  <label class="chk"><input type="checkbox" id="snap"> 動かすとき、きりのいい位置に吸いつける</label>
  <label class="chk"><input type="checkbox" id="safe"> 印刷で切れやすい端を赤い点線で見せる</label>
  <h2>名刺の地の色</h2>
- <div class="g"><div><label for="bg">色</label><input type="color" id="bg" value="#ffffff"></div></div>
+ <div class="sws" id="bgsw"></div><div class="g"><div><label for="bg">ほかの色を選ぶ</label><input type="color" id="bg" value="#ffffff"></div></div>
 </div>
 
 <div class="page" data-p="4" hidden>
@@ -151,7 +160,28 @@ summary{font-size:14px;min-height:40px;display:flex;align-items:center;color:#3e
 var KEY="meishi_editor4";
 var ROLES=[["en","英字の社名","MIRUSHURIRU など"],["co","会社名・お店の名前","株式会社○○"],["tt","肩書き","開発責任者 など"],["nm","お名前","山田 太郎"],["ad","住所","福岡市○○区○○1-2-3"],["tel","電話番号","092-000-0000"],["mail","メール","info@example.co.jp"],["web","ホームページ","example.co.jp"]];
 var SAMPLE={en:"SAMPLE",co:"株式会社サンプル",tt:"肩書き",nm:"山田 太郎",ad:"福岡市○○区○○1-2-3",tel:"092-000-0000",mail:"info@example.co.jp",web:"example.co.jp"};
-var FONTS={g:'"Yu Gothic","Meiryo",sans-serif',m:'"Yu Mincho","MS Mincho",serif'};
+var FDEF=[
+ ["g","標準ゴシック（Noto Sans）",'"Noto Sans JP","Yu Gothic","Meiryo",sans-serif',"和文"],
+ ["g2","モダンゴシック",'"Zen Kaku Gothic New","Noto Sans JP","Yu Gothic",sans-serif',"和文"],
+ ["g3","読みやすいゴシック（UD）",'"BIZ UDPGothic","Noto Sans JP","Yu Gothic",sans-serif',"和文"],
+ ["g4","やさしい丸ゴシック",'"Zen Maru Gothic","Noto Sans JP","Yu Gothic",sans-serif',"和文"],
+ ["m","標準明朝（Noto Serif）",'"Noto Serif JP","Yu Mincho","MS Mincho",serif',"和文"],
+ ["m2","上品な明朝",'"Shippori Mincho","Noto Serif JP","Yu Mincho",serif',"和文"],
+ ["m3","読みやすい明朝（UD）",'"BIZ UDPMincho","Noto Serif JP","Yu Mincho",serif',"和文"],
+ ["e1","英字：すっきり（Inter）",'"Inter","Noto Sans JP",sans-serif',"英字"],
+ ["e2","英字：モダン（Montserrat）",'"Montserrat","Noto Sans JP",sans-serif',"英字"],
+ ["e3","英字：上品（Cormorant）",'"Cormorant Garamond","Noto Serif JP",serif',"英字"],
+ ["e4","英字：格式（Playfair）",'"Playfair Display","Noto Serif JP",serif',"英字"]];
+var FONTS={};FDEF.forEach(function(f){FONTS[f[0]]=f[2];});
+var FSETS=[
+ {n:"大手風（ゴシック）",en:"e1",main:"g",body:"g"},
+ {n:"上品（明朝）",en:"e3",main:"m2",body:"g"},
+ {n:"格式（老舗）",en:"e4",main:"m",body:"m3"},
+ {n:"モダン",en:"e2",main:"g2",body:"g2"},
+ {n:"読みやすい（UD）",en:"g3",main:"g3",body:"g3"},
+ {n:"やさしい（丸ゴシック）",en:"g4",main:"g4",body:"g4"}];
+var PAL=["#0a3d62","#12304d","#1c3144","#0d9488","#1f6f54","#7a1f2b","#1a1a1a","#52606d","#8d7b68","#c9a24b","#ffffff"];
+var BGP=["#ffffff","#f7f5f0","#eef1f4","#12304d","#1a1a1a"];
 var S={items:[],bg:"#ffffff",ox:0,oy:0,next:1,sel:0,vals:{},tpl:"",snap:true,safe:false,test:false,page:1};
 var loaded=false;
 try{var sv=JSON.parse(localStorage.getItem(KEY)||"null");if(sv&&sv.items){S=sv;if(!S.vals)S.vals={};loaded=S.items.length>0;}}catch(e){}
@@ -185,6 +215,18 @@ var TPLS=[
  T("co",8,6,9,.1,700,"#1a1a1a"),T("tt",8,14,8.5,.05,400,"#444444"),T("nm",8,19,20,.2,700,"#0a3d62"),
  R(8,33,12,.4,"#0d9488"),
  T("ad",8,35.5,7.5,0,400,"#222222"),T("tel",8,39.5,7.5,0,400,"#222222"),T("mail",8,43.5,7.5,0,400,"#222222"),T("web",8,47.5,7.5,0,400,"#222222"),T("en",60,6,6,.2,400,"#8a94a0")];}},
+{id:"g",name:"中央そろえ・上品",bg:"#ffffff",items:function(){return[
+ T("en",45.5,9,7,.4,500,"#8d7b68","e3",{ctr:1}),T("co",45.5,14,9.5,.2,700,"#1c3144","m2",{ctr:1}),R(40,21,11,.3,"#8d7b68"),
+ T("nm",45.5,25,15,.35,700,"#1c3144","m2",{ctr:1}),T("tt",45.5,33,6.5,.15,400,"#52606d","m2",{ctr:1}),
+ T("ad",45.5,38.6,6,0,400,"#3e4c59","g",{ctr:1}),T("tel",45.5,42.1,6,0,400,"#3e4c59","g",{ctr:1}),T("mail",45.5,45.6,6,0,400,"#3e4c59","g",{ctr:1}),T("web",45.5,49,5.2,0,400,"#52606d","g",{ctr:1})];}},
+{id:"h",name:"濃紺地・白い文字",bg:"#12304d",items:function(){return[
+ R(0,0,4,55,"#4fb3a9"),T("co",11,8,8.5,.15,700,"#ffffff"),T("en",11,13,5.2,.22,400,"#9fc2d6"),
+ T("tt",11,23,7,.1,400,"#b8d4e3"),T("nm",11,27,15,.3,700,"#ffffff"),
+ T("ad",11,40.5,6.2,0,400,"#d9e8f2"),T("tel",11,44.2,6.2,0,400,"#d9e8f2"),T("mail",33,44.2,6.2,0,400,"#d9e8f2"),T("web",11,47.9,6.2,0,400,"#d9e8f2")];}},
+{id:"i",name:"縦書き（和風）",bg:"#f7f5f0",items:function(){return[
+ T("co",80,8,8,.25,700,"#1c3144","m2",{v:1}),T("tt",72,8,6.5,.2,400,"#52606d","m2",{v:1}),T("nm",62,8,16,.35,700,"#1c3144","m2",{v:1}),
+ R(56,8,.3,39,"#8d7b68"),
+ T("ad",8,38,6,0,400,"#333333","m3"),T("tel",8,42,6,0,400,"#333333","m3"),T("mail",8,46,6,0,400,"#333333","m3"),T("web",8,9,6,0,400,"#333333","m3"),T("en",8,13,6,.2,400,"#8d7b68","e3")];}},
 {id:"f",name:"右にロゴの場所",bg:"#ffffff",items:function(){return[
  R(62,8,21,21,"#eef1f4"),{k:"t",x:67.5,y:16.5,s:7,l:.1,lh:1.2,w:700,c:"#9aa5b1",f:"g",t:"LOGO",pre:"",role:""},
  T("co",8,8,8,.12,700,"#12304d"),T("en",8,12.6,5.2,.2,400,"#7b8794"),R(8,19,9,.35,"#0d9488"),
@@ -210,8 +252,8 @@ function itemHtml(it,mode){ /* mode: pv | print | mini */
  var cls="o "+it.k+((mode==="pv"&&it.id===S.sel)?" sel":"")+((mode!=="print"&&tx&&tx.ph)?" ph":"");
  if(mode==="mini")cls=cls.replace(" ph","");
  var st="left:"+it.x+"mm;top:"+it.y+"mm;",inner="";
- if(it.k==="t"){st+="font-size:"+it.s+"pt;letter-spacing:"+it.l+"em;color:"+it.c+";font-weight:"+it.w+";line-height:"+it.lh+";font-family:"+FONTS[it.f||"g"]+";";inner=esc(tx.t);if(!tx.t&&mode==="pv")inner='<span style="opacity:.4">文字</span>';}
- else if(it.k==="r"){st+="width:"+it.w+"mm;height:"+it.h+"mm;background:"+it.c+";opacity:"+it.a+";";}
+ if(it.k==="t"){st+="font-size:"+it.s+"pt;letter-spacing:"+it.l+"em;color:"+it.c+";font-weight:"+it.w+";line-height:"+it.lh+";font-family:"+(FONTS[it.f||"g"]||FONTS.g).replace(/"/g,"'")+";"+(it.v?"writing-mode:vertical-rl;text-orientation:mixed;":"")+(it.ctr?"transform:translateX(-50%);":"");inner=esc(tx.t);if(!tx.t&&mode==="pv")inner='<span style="opacity:.4">文字</span>';}
+ else if(it.k==="r"){st+="width:"+it.w+"mm;height:"+it.h+"mm;background:"+it.c+";opacity:"+it.a+";"+(it.sh==="o"?"border-radius:50%;":"");}
  else{st+="width:"+it.w+"mm;height:"+it.h+"mm;"+(it.circ?"border-radius:50%;overflow:hidden;":"");inner='<img src="'+it.src+'" alt="" draggable="false">';}
  return'<div class="'+cls+'" data-id="'+it.id+'" style="'+st+'">'+inner+'</div>';
 }
@@ -235,6 +277,7 @@ function layers(){
   var lb;if(it.k==="t"){var t=textOf(it).t;lb=(t.split("\n")[0]||"文字").slice(0,10);}else if(it.k==="r")lb=(it.h<=1||it.w<=1)?"線":"四角";else lb="写真";
   b.textContent=lb;if(it.id===S.sel)b.className="on";b.onclick=function(){S.sel=it.id;layers();edit();renderCard();};c.appendChild(b);});
 }
+function sw(lbl,cur){var h='<div class="lab">'+lbl+'</div><div class="sws">';PAL.forEach(function(c){h+='<button type="button" class="sw'+(c.toLowerCase()===String(cur).toLowerCase()?" on":"")+'" data-col="'+c+'" style="background:'+c+'" aria-label="色"></button>';});h+='</div><div class="g"><div><label for="e_c">ほかの色を選ぶ</label><input type="color" id="e_c" value="'+esc(cur)+'"></div></div>';return h;}
 function fld(lbl,id,type,val,attrs){return'<div><label for="'+id+'">'+lbl+'</label><input type="'+type+'" id="'+id+'" value="'+esc(val)+'" '+(attrs||"")+'></div>';}
 function edit(){
  var ed=document.getElementById("ed"),it=get(S.sel);
@@ -246,11 +289,12 @@ function edit(){
   h+='<div class="fld"><label for="e_t">'+(it.role?"この文字（②で入れたものと同じです）":"文字（改行できます）")+'</label><textarea id="e_t">'+esc(cur)+'</textarea></div>';
   h+='<div class="lab">文字の大きさ</div><div class="pair"><button class="btn" data-a="sz-">小さく</button><button class="btn" data-a="sz+">大きく</button></div>';
   h+='<div class="lab">太さ</div><div class="pair"><button class="btn" data-a="bd-">細く</button><button class="btn" data-a="bd+">太く</button></div>';
-  h+='<div class="g"><div><label for="e_f">書体</label><select id="e_f"><option value="g"'+(it.f!=="m"?" selected":"")+'>ゴシック体（くっきり）</option><option value="m"'+(it.f==="m"?" selected":"")+'>明朝体（上品）</option></select></div>'+fld("色","e_c","color",it.c)+'</div>';
+  var opts="";["和文","英字"].forEach(function(gp){opts+='<optgroup label="'+gp+'">';FDEF.forEach(function(f){if(f[3]===gp)opts+='<option value="'+f[0]+'"'+((it.f||"g")===f[0]?" selected":"")+'>'+f[1]+'</option>';});opts+='</optgroup>';});
+  h+='<div class="fld"><label for="e_f">書体（字のかたち）</label><select id="e_f">'+opts+'</select></div>'+sw("色",it.c)+'<label class="chk"><input type="checkbox" id="e_v"'+(it.v?" checked":"")+'> 縦書きにする</label>';
  }else if(it.k==="r"){
   h+='<div class="lab">横の長さ</div><div class="pair"><button class="btn" data-a="w-">短く</button><button class="btn" data-a="w+">長く</button></div>';
   h+='<div class="lab">縦の太さ・高さ</div><div class="pair"><button class="btn" data-a="h-">細く（低く）</button><button class="btn" data-a="h+">太く（高く）</button></div>';
-  h+='<div class="g">'+fld("色","e_c","color",it.c)+'</div>';
+  h+=sw("色",it.c);
  }else{
   h+='<div class="lab">写真の大きさ</div><div class="pair"><button class="btn" data-a="p-">小さく</button><button class="btn" data-a="p+">大きく</button></div>';
   h+='<label class="chk"><input type="checkbox" id="e_circ"'+(it.circ?" checked":"")+'> 丸く切り抜く（顔写真に向きます）</label>';
@@ -265,10 +309,11 @@ function edit(){
  function nb(id,fn){var e=document.getElementById(id);if(!e)return;e.addEventListener("focus",push);e.addEventListener("input",function(){fn(e.type==="checkbox"?e.checked:e.value);renderCard();if(id==="e_t"){layers();roles();}});}
  nb("e_t",function(v){if(it.role)S.vals[it.role]=v;else it.t=v;});
  nb("e_s",function(v){it.s=num(v,it.s);});nb("e_l",function(v){it.l=num(v,it.l);});nb("e_lh",function(v){it.lh=num(v,it.lh);});nb("e_w",function(v){it.w=num(v,it.w);});
- nb("e_f",function(v){it.f=v;});nb("e_c",function(v){it.c=v;});nb("e_w2",function(v){var w=num(v,it.w);if(it.k==="i"&&it.circ)it.h=w;it.w=w;});
+ nb("e_f",function(v){it.f=v;});nb("e_v",function(v){it.v=v;});nb("e_c",function(v){it.c=v;});nb("e_w2",function(v){var w=num(v,it.w);if(it.k==="i"&&it.circ)it.h=w;it.w=w;});
  nb("e_h2",function(v){it.h=num(v,it.h);});nb("e_a",function(v){it.a=num(v,it.a);});nb("e_x",function(v){it.x=num(v,it.x);});nb("e_y",function(v){it.y=num(v,it.y);});
  nb("e_circ",function(v){it.circ=v;if(v){var m=Math.min(it.w,it.h);it.w=m;it.h=m;}});
  var cc=document.getElementById("e_circ");if(cc)cc.addEventListener("change",function(){edit();});
+ ed.querySelectorAll(".sw").forEach(function(b){b.onclick=function(){push();it.c=b.dataset.col;edit();renderCard();};});
  ed.querySelectorAll("[data-a]").forEach(function(b){b.onclick=function(){push();var a=b.dataset.a;
   if(a==="sz+")it.s=r1(it.s+.5);else if(a==="sz-")it.s=Math.max(3,r1(it.s-.5));
   else if(a==="bd+")it.w=Math.min(900,it.w+300);else if(a==="bd-")it.w=Math.max(300,it.w-300);
@@ -310,10 +355,14 @@ function checks(){
 }
 
 /* ---- actions ---- */
-function all(){tpls();layers();edit();roles();renderCard();btns();}
+function fsets(){var box=document.getElementById("fsets");box.innerHTML="";FSETS.forEach(function(fs){var b=document.createElement("button");b.type="button";b.className="btn";b.textContent=fs.n;
+ b.onclick=function(){push();S.items.forEach(function(it){if(it.k!=="t")return;var r=it.role;it.f=(r==="en")?fs.en:((r==="ad"||r==="tel"||r==="mail"||r==="web")?fs.body:fs.main);});edit();renderCard();};box.appendChild(b);});
+ var bs=document.getElementById("bgsw");bs.innerHTML="";BGP.forEach(function(c){var b=document.createElement("button");b.type="button";b.className="sw"+(c.toLowerCase()===String(S.bg).toLowerCase()?" on":"");b.style.background=c;b.setAttribute("aria-label","地の色");b.onclick=function(){push();S.bg=c;document.getElementById("bg").value=c;fsets();renderCard();};bs.appendChild(b);});}
+function all(){fsets();tpls();layers();edit();roles();renderCard();btns();}
 function addItem(o){push();o.id=S.next++;S.items.push(o);S.sel=o.id;go(3);layers();edit();renderCard();}
 document.getElementById("addT").onclick=function(){addItem({k:"t",t:"文字を入れる",x:8,y:8,s:9,l:.1,lh:1.2,w:400,f:"g",c:"#1a1a1a",pre:"",role:""});};
 document.getElementById("addR").onclick=function(){addItem({k:"r",x:8,y:20,w:30,h:10,c:"#0a3d62",a:1});};
+document.getElementById("addO").onclick=function(){addItem({k:"r",sh:"o",x:8,y:8,w:14,h:14,c:"#0d9488",a:1});};
 document.getElementById("addL").onclick=function(){addItem({k:"r",x:8,y:20,w:20,h:.35,c:"#0d9488",a:1});};
 document.getElementById("addI").addEventListener("change",function(e){
  var f=e.target.files&&e.target.files[0];if(!f)return;var rd=new FileReader();
@@ -328,10 +377,10 @@ document.getElementById("back").onclick=function(){var i=S.items.indexOf(get(S.s
 document.querySelectorAll("[data-al]").forEach(function(b){b.onclick=function(){
  var it=get(S.sel);if(!it)return;push();var pv=document.getElementById("pv"),r=pv.getBoundingClientRect(),mm=91/r.width,w=it.w,h=it.h;
  if(it.k==="t"){var el=pv.querySelector('[data-id="'+it.id+'"]');if(el){var q=el.getBoundingClientRect();w=q.width*mm;h=q.height*mm;}}
- var a=b.dataset.al;if(a==="l")it.x=8;else if(a==="c")it.x=r1((91-w)/2);else if(a==="r")it.x=r1(83-w);else it.y=r1((55-h)/2);
+ var a=b.dataset.al,hw=it.ctr?w/2:0;if(a==="l")it.x=r1(8+hw);else if(a==="c")it.x=r1(it.ctr?45.5:(91-w)/2);else if(a==="r")it.x=r1(83-w+hw);else it.y=r1((55-h)/2);
  edit();renderCard();};});
 document.getElementById("bg").addEventListener("focus",push);
-document.getElementById("bg").addEventListener("input",function(e){S.bg=e.target.value;renderCard();});
+document.getElementById("bg").addEventListener("input",function(e){S.bg=e.target.value;renderCard();});document.getElementById("bg").addEventListener("change",function(){fsets();});
 document.getElementById("snap").addEventListener("change",function(e){S.snap=e.target.checked;save();});
 document.getElementById("safe").addEventListener("change",function(e){S.safe=e.target.checked;renderCard();});
 document.getElementById("test").addEventListener("change",function(e){S.test=e.target.checked;renderCard();});
