@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>名刺エディタ</title>
+<style>
+@page{size:A4;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Yu Gothic","Meiryo",sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;color:#1a1a1a;background:#e9edf1}
+.panel{max-width:760px;margin:0 auto;padding:14px max(16px,env(safe-area-inset-left,0px))}
+h1{font-size:18px;margin-bottom:4px}
+.note{font-size:13px;color:#52606d;margin-bottom:10px;line-height:1.5}
+.pv{display:flex;justify-content:center;margin:8px 0 10px}
+#pv{box-shadow:0 0 3mm rgba(0,0,0,.28)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.chips button{font-size:13px;padding:7px 10px;border:1px solid #9aa5b1;border-radius:16px;background:#fff;color:#1a1a1a}
+.chips button.on{background:#0a3d62;color:#fff;border-color:#0a3d62}
+.ed{background:#fff;border-radius:6px;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ed .full{grid-column:1/-1}
+.ed label{font-size:12px;font-weight:700;display:block;margin-bottom:3px;color:#3e4c59}
+.ed input[type=text],.ed input[type=number]{font-size:16px;padding:8px;border:1px solid #9aa5b1;border-radius:4px;width:100%}
+.ed input[type=color]{width:100%;height:38px;border:1px solid #9aa5b1;border-radius:4px;padding:2px}
+.nudge{display:flex;gap:6px;align-items:center}
+.nudge button,.act button{font-size:15px;padding:10px 14px;border:0;border-radius:4px;background:#0a3d62;color:#fff}
+.nudge button{flex:1;padding:10px 0}
+.act{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.act .sub{background:#fff;color:#0a3d62;border:1px solid #0a3d62}
+.off{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:6px 0 10px}
+.off div{width:110px}
+.off label{font-size:12px;font-weight:700;display:block;margin-bottom:3px}
+.off input{font-size:16px;padding:8px;border:1px solid #9aa5b1;border-radius:4px;width:100%}
+.sheetwrap{display:none}
+.sheet{width:210mm;height:297mm;padding:11mm 14mm;display:grid;grid-template-columns:repeat(2,91mm);grid-template-rows:repeat(5,55mm);background:#fff}
+.card{width:91mm;height:55mm;position:relative;background:#fff;overflow:hidden}
+.t{position:absolute;white-space:pre;line-height:1.2}
+.ln{position:absolute;height:.35mm}
+#pv .t,#pv .ln{cursor:grab;touch-action:none}
+#pv .sel{outline:.25mm dashed #0d9488;outline-offset:.4mm}
+@media print{
+ body{background:#fff}
+ .panel,.pv{display:none}
+ .sheetwrap{display:block;padding:0}
+}
+</style></head><body>
+<div class="panel">
+<h1>名刺エディタ（10面・エーワン51604用）</h1>
+<p class="note">下の項目を選んで文字を入れます。名刺の上の文字は、指でなぞって動かせます。細かい位置は矢印ボタンで直します。</p>
+<div class="pv"><div class="card" id="pv"></div></div>
+<div class="chips" id="chips"></div>
+<div class="ed">
+ <div class="full"><label id="lbText" for="fText">文字</label><input type="text" id="fText" autocomplete="off"></div>
+ <div><label for="fX">左からの位置(mm)</label><input type="number" id="fX" step="0.1"></div>
+ <div><label for="fY">上からの位置(mm)</label><input type="number" id="fY" step="0.1"></div>
+ <div><label for="fS" id="lbS">文字の大きさ(pt)</label><input type="number" id="fS" step="0.1"></div>
+ <div id="boxLs"><label for="fL">文字の間隔</label><input type="number" id="fL" step="0.05"></div>
+ <div><label for="fC">色</label><input type="color" id="fC"></div>
+ <div id="boxB"><label for="fB">太さ</label><input type="number" id="fB" step="100" min="100" max="900"></div>
+ <div class="full nudge"><button data-n="-1,0" aria-label="左">←</button><button data-n="0,-1" aria-label="上">↑</button><button data-n="0,1" aria-label="下">↓</button><button data-n="1,0" aria-label="右">→</button></div>
+</div>
+<div class="note" style="margin-top:12px">印刷のずれ直し（プリンターで紙の位置が少しずれるときに使います）</div>
+<div class="off"><div><label for="oX">右へ(mm)</label><input type="number" id="oX" step="0.1" value="0"></div><div><label for="oY">下へ(mm)</label><input type="number" id="oY" step="0.1" value="0"></div></div>
+<div class="act"><button onclick="window.print()">印刷／PDFにする</button><button class="sub" id="demo">見本の文字を入れる</button><button class="sub" id="reset">位置を元に戻す</button></div>
+<p class="note">印刷の設定は「倍率100%（拡大縮小なし）」「余白なし」にします。まず普通紙で試し刷りしてください。</p>
+</div>
+<div class="sheetwrap"><div class="sheet" id="sheet"></div></div>
+<script>
+var KEY="meishi_editor2";
+var NAMES={en:"英字の社名",co:"会社名",tt:"肩書き",nm:"氏名",ad:"住所",tel:"電話",mail:"メール",web:"ホームページ",ln:"線"};
+function defaults(){return{
+ en:{t:"",x:8,y:8,s:8.5,l:.42,c:"#0a3d62",w:700},
+ co:{t:"",x:8,y:13,s:6.5,l:.2,c:"#52606d",w:400},
+ ln:{x:8,y:20,s:9,c:"#0d9488",on:1},
+ tt:{t:"",x:8,y:24,s:7,l:.1,c:"#52606d",w:400},
+ nm:{t:"",x:8,y:28.5,s:15,l:.3,c:"#0a3d62",w:700},
+ ad:{t:"",x:8,y:40.5,s:6.3,l:0,c:"#333333",w:400},
+ tel:{t:"",x:8,y:44.3,s:6.3,l:0,c:"#333333",w:400},
+ mail:{t:"",x:30,y:44.3,s:6.3,l:0,c:"#333333",w:400},
+ web:{t:"",x:8,y:48,s:6.3,l:0,c:"#333333",w:400}
+};}
+var order=["en","co","ln","tt","nm","ad","tel","mail","web"];
+var S={items:defaults(),ox:0,oy:0};var cur="nm";
+try{var sv=JSON.parse(localStorage.getItem(KEY)||"null");if(sv&&sv.items){S=sv;var d=defaults();order.forEach(function(k){if(!S.items[k])S.items[k]=d[k];});}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+function cardHtml(sel){
+ var h="";
+ order.forEach(function(k){var it=S.items[k];var cls=(sel&&k===cur)?" sel":"";
+  if(k==="ln"){h+='<div class="ln'+cls+'" data-k="ln" style="left:'+it.x+'mm;top:'+it.y+'mm;width:'+it.s+'mm;background:'+it.c+'"></div>';return;}
+  if(!it.t&&!(sel&&k===cur))return;
+  var txt=it.t||(sel?NAMES[k]:"");
+  var ph=(!it.t)?";opacity:.35":"";
+  h+='<div class="t'+cls+'" data-k="'+k+'" style="left:'+it.x+'mm;top:'+it.y+'mm;font-size:'+it.s+'pt;letter-spacing:'+it.l+'em;color:'+it.c+';font-weight:'+it.w+ph+'">'+esc(k==="tel"&&it.t?"TEL "+it.t:txt)+'</div>';
+ });
+ return h;
+}
+function render(){
+ var pv=document.getElementById("pv");pv.innerHTML=cardHtml(true);
+ pv.style.zoom=Math.min(3.4,(Math.min(window.innerWidth,760)-32)/344);
+ var h=cardHtml(false),s="";for(var i=0;i<10;i++)s+='<div class="card">'+h+'</div>';
+ var sh=document.getElementById("sheet");sh.innerHTML=s;sh.style.transform="translate("+S.ox+"mm,"+S.oy+"mm)";
+ save();
+}
+function chips(){
+ var c=document.getElementById("chips");c.innerHTML="";
+ order.forEach(function(k){var b=document.createElement("button");b.type="button";b.textContent=NAMES[k];if(k===cur)b.className="on";b.onclick=function(){cur=k;chips();fill();render();};c.appendChild(b);});
+}
+function fill(){
+ var it=S.items[cur],isL=cur==="ln";
+ document.getElementById("lbText").textContent=NAMES[cur]+(isL?"（文字なし）":"の文字");
+ var ft=document.getElementById("fText");ft.disabled=isL;ft.value=isL?"":it.t;
+ document.getElementById("fX").value=it.x;document.getElementById("fY").value=it.y;
+ document.getElementById("fS").value=it.s;document.getElementById("lbS").textContent=isL?"線の長さ(mm)":"文字の大きさ(pt)";
+ document.getElementById("boxLs").style.display=isL?"none":"";document.getElementById("boxB").style.display=isL?"none":"";
+ if(!isL){document.getElementById("fL").value=it.l;document.getElementById("fB").value=it.w;}
+ document.getElementById("fC").value=it.c;
+}
+function num(v,d){var n=parseFloat(v);return isNaN(n)?d:n;}
+function bind(id,fn){document.getElementById(id).addEventListener("input",function(e){fn(e.target.value);render();});}
+bind("fText",function(v){S.items[cur].t=v;});
+bind("fX",function(v){S.items[cur].x=num(v,S.items[cur].x);});
+bind("fY",function(v){S.items[cur].y=num(v,S.items[cur].y);});
+bind("fS",function(v){S.items[cur].s=num(v,S.items[cur].s);});
+bind("fL",function(v){S.items[cur].l=num(v,S.items[cur].l);});
+bind("fB",function(v){S.items[cur].w=num(v,S.items[cur].w);});
+bind("fC",function(v){S.items[cur].c=v;});
+bind("oX",function(v){S.ox=num(v,0);});
+bind("oY",function(v){S.oy=num(v,0);});
+document.querySelectorAll(".nudge button").forEach(function(b){b.onclick=function(){
+ var n=b.dataset.n.split(",");var it=S.items[cur];
+ it.x=Math.round((it.x+parseFloat(n[0])*.5)*10)/10;it.y=Math.round((it.y+parseFloat(n[1])*.5)*10)/10;fill();render();};});
+document.getElementById("reset").onclick=function(){var d=defaults();order.forEach(function(k){var t=S.items[k].t;S.items[k]=d[k];if(t)S.items[k].t=t;});S.ox=0;S.oy=0;document.getElementById("oX").value=0;document.getElementById("oY").value=0;fill();render();};
+document.getElementById("demo").onclick=function(){var d={en:"EXAMPLE",co:"株式会社○○",tt:"肩書き",nm:"氏名 見本",ad:"福岡市○○区○○1-2-3",tel:"092-000-0000",mail:"info@example.co.jp",web:"example.co.jp"};for(var k in d)S.items[k].t=d[k];fill();render();};
+/* drag in preview */
+var drag=null;
+var pvEl=document.getElementById("pv");
+pvEl.addEventListener("pointerdown",function(e){
+ var el=e.target.closest("[data-k]");if(!el)return;
+ cur=el.dataset.k;var it=S.items[cur];
+ var r=pvEl.getBoundingClientRect();
+ drag={k:cur,mm:91/r.width,sx:e.clientX,sy:e.clientY,ox:it.x,oy:it.y};
+ chips();fill();render();e.preventDefault();
+});
+window.addEventListener("pointermove",function(e){
+ if(!drag)return;var it=S.items[drag.k];
+ it.x=Math.round((drag.ox+(e.clientX-drag.sx)*drag.mm)*10)/10;
+ it.y=Math.round((drag.oy+(e.clientY-drag.sy)*drag.mm)*10)/10;
+ var el=pvEl.querySelector('[data-k="'+drag.k+'"]');if(el){el.style.left=it.x+"mm";el.style.top=it.y+"mm";}
+});
+function endDrag(){if(drag){drag=null;fill();render();}}
+window.addEventListener("pointerup",endDrag);window.addEventListener("pointercancel",endDrag);
+window.addEventListener("resize",render);
+document.getElementById("oX").value=S.ox;document.getElementById("oY").value=S.oy;
+chips();fill();
+if(location.hash==="#demo"){document.getElementById("demo").click();}else render();
+</script>
+</body></html>
